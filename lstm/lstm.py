@@ -8,7 +8,7 @@ import hyper_parameters as hp
 import numpy as np
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from agent import agent as ag
+from agent import tournament
 
 
 class LSTM(nn.Module):
@@ -44,71 +44,51 @@ class LSTM(nn.Module):
 
     def learn(self):
         #Train with Regularization
-        agents = [ag.CooperateAgent, ag.DefectAgent, ag.CopyAgent, ag.GrudgeAgent]
-        agent_to_id = {
-            ag.CooperateAgent : 0,
-            ag.DefectAgent :  1,
-            ag.CopyAgent : 2,
-            ag.GrudgeAgent : 3,
-        }
-
-        id_to_opt = {
-            0 : 1,
-            1 : 1,
-            2 : 0,
-            3 : 0
-        }
+        tment = tournament.Tournament()
 
         for epoch in range(hp.EPOCHS):
           print("EPOCH %d" % epoch)
           errors = 0
           for i in tqdm(range(hp.GAMES)):
 
-            agent_class = np.random.choice(agents)
-            agent_id = agent_to_id[agent_class]
-            agent = agent_class()
-
-            prev_agent_choice = 1 if agent_id == 1 else 0
+            agent = tment.get_random_agent()
+            prev_agent_choice = agent.previous()
 
             input = [0, 0]
             input[1] = prev_agent_choice
             input = torch.Tensor(input).to(hp.DEVICE).unsqueeze(0).unsqueeze(0)
 
-            id = [agent_id]
+            id = [agent.id()]
             id = torch.Tensor(id).to(hp.DEVICE)
             id = id.to(torch.int64)
 
             for _ in range(hp.ROUNDS):
 
-              out = self(input)
-              id_logits = out[:, -1, :]
-              pred_id = id_logits.argmax(dim=-1)
-              pred_id = pred_id.item()
+                out = self(input)
+                id_logits = out[:, -1, :]
+                pred_id = id_logits.argmax(dim=-1)
+                pred_id = pred_id.item()
 
-              nn_action = id_to_opt[pred_id]
-              opt_action = agent.opt()
-              agent_action = int(agent.play())
+                # TODO: Implement Q Table here
+                nn_action = agent.opt()
+                agent_action = int(agent.play())
 
-              curr_input = [0, 0]
+                curr_input = [0, 0]
 
-              curr_input[0] = nn_action
-              curr_input[1] = agent_action
-              curr_input = torch.Tensor(curr_input).to(hp.DEVICE).unsqueeze(0)
-              prev_input = input[0]
-              input = torch.cat([prev_input, curr_input]).unsqueeze(0)
+                curr_input[0] = nn_action
+                curr_input[1] = agent_action
+                curr_input = torch.Tensor(curr_input).to(hp.DEVICE).unsqueeze(0)
+                prev_input = input[0]
+                input = torch.cat([prev_input, curr_input]).unsqueeze(0)
 
-              agent.update(nn_action)
+                agent.update(nn_action)
 
-              label = [opt_action]
-              label = torch.Tensor(label).to(hp.DEVICE)
-              label = label.to(torch.int64)
-
-              id_loss = self.criterion(id_logits, id)
-              id_loss.backward()
-              self.optimizer.step()
+                id_loss = self.criterion(id_logits, id)
+                id_loss.backward()
+                self.optimizer.step()
 
             predicted_id = id_logits.argmax(dim=-1).item()
-            if predicted_id != agent_id:
+            if predicted_id != agent.id():
               errors += 1
 
           frac = (hp.GAMES-errors)/hp.GAMES
