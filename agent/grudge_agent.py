@@ -1,7 +1,7 @@
 from .base_agent import BaseAgent
 
 class GrudgeAgent(BaseAgent):
-  def id(self):
+  def __init__(self):
     super().__init__(3)
 
   def update(self, val):

@@ -8,7 +8,7 @@ class Tournament():
   def __init__(self):
     self.agents = [CooperateAgent(), DefectAgent(), CopyAgent(), GrudgeAgent()]
 
-  def get_random_agent():
-    agent = np.random.choice(agents)
+  def get_random_agent(self):
+    agent = np.random.choice(self.agents)
     return agent
 
