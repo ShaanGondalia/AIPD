@@ -5,7 +5,6 @@ from .hyper_parameters import *
 import numpy as np
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from agent import agents
 
 
 class LSTM(nn.Module):
@@ -39,59 +38,40 @@ class LSTM(nn.Module):
                 self._train_batch(batch, epoch_accs)
             print(np.mean(epoch_accs))
 
-    def learn(self):
-        #Train with Regularization
-        agents = agents.Agents()
+    def predict_id(self, input, agent, id):
+        """Predicts the ID of an agent based on the input"""
+        out = self(input)
+        id_logits = out[:, -1, :]
+        pred_id = id_logits.argmax(dim=-1)
+        return pred_id.item(), id_logits
 
-        for epoch in range(EPOCHS):
-          print("EPOCH %d" % epoch)
-          errors = 0
-          for i in tqdm(range(GAMES)):
+    def learn(self, nn_action, opp_action, prev_input, id_logits, id):
+        """Optimizes model weights based on current input, previous input, expected id, and actual id"""
+        curr_input = [0, 0]
 
-            agent = agents.get_random_agent()
-            prev_agent_choice = agent.previous()
+        curr_input[0] = nn_action
+        curr_input[1] = opp_action
+        curr_input = torch.Tensor(curr_input).to(DEVICE).unsqueeze(0)
 
-            input = [0, 0]
-            input[1] = prev_agent_choice
-            input = torch.Tensor(input).to(DEVICE).unsqueeze(0).unsqueeze(0)
+        id_loss = self.criterion(id_logits, id)
+        id_loss.backward()
+        self.optimizer.step()
+        return torch.cat([prev_input, curr_input]).unsqueeze(0)
 
-            id = [agent.id()]
-            id = torch.Tensor(id).to(DEVICE)
-            id = id.to(torch.int64)
+    def build_input_vector(self, prev_agent_choice):
+        """Creates NN input vector"""
+        input = [0, 0]
+        input[1] = prev_agent_choice
+        return torch.Tensor(input).to(DEVICE).unsqueeze(0).unsqueeze(0)
 
-            for _ in range(ROUNDS):
-
-                out = self(input)
-                id_logits = out[:, -1, :]
-                pred_id = id_logits.argmax(dim=-1)
-                pred_id = pred_id.item()
-
-                # TODO: Implement Q Table here
-                nn_action = agent.opt()
-                agent_action = int(agent.play())
-
-                curr_input = [0, 0]
-
-                curr_input[0] = nn_action
-                curr_input[1] = agent_action
-                curr_input = torch.Tensor(curr_input).to(DEVICE).unsqueeze(0)
-                prev_input = input[0]
-                input = torch.cat([prev_input, curr_input]).unsqueeze(0)
-
-                agent.update(nn_action)
-
-                id_loss = self.criterion(id_logits, id)
-                id_loss.backward()
-                self.optimizer.step()
-
-            predicted_id = id_logits.argmax(dim=-1).item()
-            if predicted_id != agent.id():
-              errors += 1
-
-          frac = (GAMES-errors)/GAMES
-          print("Prediction Accuracy: %.2f" % frac)
+    def build_id_vector(self, agent):
+        """Find id of agent (another input to NN for regularization)"""
+        id = [agent.id()]
+        id = torch.Tensor(id).to(DEVICE)
+        return id.to(torch.int64)
 
     def _train_batch(self, batch, epoch_accs):
+        """Pretrains weights based on a batch of inputs"""
         input = batch["input"].type(torch.FloatTensor).to(DEVICE)
         output = batch["output"].to(DEVICE)
         pred = self(input)
