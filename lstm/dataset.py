@@ -2,7 +2,7 @@ import numpy as np
 import itertools
 import random
 from torch.utils.data import Dataset, DataLoader
-import hyper_parameters as hp
+from .hyper_parameters import *
 
 class PreTrainDataset(Dataset):
 
@@ -22,13 +22,13 @@ class PreTrainDataset(Dataset):
     }
 
   def generate_data(self):
-      d = np.array([seq for seq in itertools.product([0,1], repeat=hp.ROUNDS)])
+      d = np.array([seq for seq in itertools.product([0,1], repeat=ROUNDS)])
 
       #Generate Dataset for All Existing Moves
-      cooperate = np.array([0 for i in range(hp.ROUNDS)])
-      defect = np.array([1 for i in range(hp.ROUNDS)])
+      cooperate = np.array([0 for i in range(ROUNDS)])
+      defect = np.array([1 for i in range(ROUNDS)])
 
-      movesets = random.sample(list(d), hp.SAMPLE)
+      movesets = random.sample(list(d), SAMPLE)
       self.data = []
       for moveset in movesets:
           self.data.append({
@@ -51,7 +51,7 @@ class PreTrainDataset(Dataset):
           })
           first_cheat = np.where(moveset[0] == 1)[0]
           if len(first_cheat) > 0:
-              grudge_moveset = np.array([0 if i < first_cheat else 1 for i in range(hp.ROUNDS)])
+              grudge_moveset = np.array([0 if i < first_cheat else 1 for i in range(ROUNDS)])
           else:
               grudge_moveset = cooperate
           self.data.append({

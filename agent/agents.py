@@ -4,7 +4,7 @@ from .defect_agent import DefectAgent
 from .grudge_agent import GrudgeAgent
 import numpy as np
 
-class Tournament():
+class Agents():
   def __init__(self):
     self.agents = [CooperateAgent(), DefectAgent(), CopyAgent(), GrudgeAgent()]
 

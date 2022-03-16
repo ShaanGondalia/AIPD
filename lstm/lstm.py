@@ -1,14 +1,11 @@
-import sys,os
-sys.path.append(os.getcwd())
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import hyper_parameters as hp
+from .hyper_parameters import *
 import numpy as np
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from agent import tournament
+from agent import agents
 
 
 class LSTM(nn.Module):
@@ -27,16 +24,16 @@ class LSTM(nn.Module):
         return out
 
     def pretrain(self, dataset):
-        dataloader = DataLoader(dataset, batch_size = hp.BATCH_SIZE)
+        dataloader = DataLoader(dataset, batch_size = BATCH_SIZE)
         self.apply(_initialize_weights)
-        self.to(hp.DEVICE)
+        self.to(DEVICE)
         self.train()
 
-        self.optimizer = optim.Adam(self.parameters(), lr=hp.LR)
+        self.optimizer = optim.Adam(self.parameters(), lr=LR)
         self.criterion = nn.CrossEntropyLoss()
-        self.criterion = self.criterion.to(hp.DEVICE)
+        self.criterion = self.criterion.to(DEVICE)
 
-        for epoch in range(hp.EPOCHS):
+        for epoch in range(EPOCHS):
             epoch_accs = []
             for batch in tqdm(dataloader):
                 self._train_batch(batch, epoch_accs)
@@ -44,25 +41,25 @@ class LSTM(nn.Module):
 
     def learn(self):
         #Train with Regularization
-        tment = tournament.Tournament()
+        agents = agents.Agents()
 
-        for epoch in range(hp.EPOCHS):
+        for epoch in range(EPOCHS):
           print("EPOCH %d" % epoch)
           errors = 0
-          for i in tqdm(range(hp.GAMES)):
+          for i in tqdm(range(GAMES)):
 
-            agent = tment.get_random_agent()
+            agent = agents.get_random_agent()
             prev_agent_choice = agent.previous()
 
             input = [0, 0]
             input[1] = prev_agent_choice
-            input = torch.Tensor(input).to(hp.DEVICE).unsqueeze(0).unsqueeze(0)
+            input = torch.Tensor(input).to(DEVICE).unsqueeze(0).unsqueeze(0)
 
             id = [agent.id()]
-            id = torch.Tensor(id).to(hp.DEVICE)
+            id = torch.Tensor(id).to(DEVICE)
             id = id.to(torch.int64)
 
-            for _ in range(hp.ROUNDS):
+            for _ in range(ROUNDS):
 
                 out = self(input)
                 id_logits = out[:, -1, :]
@@ -77,7 +74,7 @@ class LSTM(nn.Module):
 
                 curr_input[0] = nn_action
                 curr_input[1] = agent_action
-                curr_input = torch.Tensor(curr_input).to(hp.DEVICE).unsqueeze(0)
+                curr_input = torch.Tensor(curr_input).to(DEVICE).unsqueeze(0)
                 prev_input = input[0]
                 input = torch.cat([prev_input, curr_input]).unsqueeze(0)
 
@@ -91,12 +88,12 @@ class LSTM(nn.Module):
             if predicted_id != agent.id():
               errors += 1
 
-          frac = (hp.GAMES-errors)/hp.GAMES
+          frac = (GAMES-errors)/GAMES
           print("Prediction Accuracy: %.2f" % frac)
 
     def _train_batch(self, batch, epoch_accs):
-        input = batch["input"].type(torch.FloatTensor).to(hp.DEVICE)
-        output = batch["output"].to(hp.DEVICE)
+        input = batch["input"].type(torch.FloatTensor).to(DEVICE)
+        output = batch["output"].to(DEVICE)
         pred = self(input)
         pred_logits = pred[:, -1, :]
         loss = self.criterion(pred_logits, output)

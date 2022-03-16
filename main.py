@@ -1,6 +1,6 @@
-from lstm import LSTM
-from dataset import PreTrainDataset
-import hyper_parameters as hp
+from lstm.lstm import LSTM
+from lstm.dataset import PreTrainDataset
+from lstm import hyper_parameters as hp
 
 def main():
 	dataset = PreTrainDataset()
