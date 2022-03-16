@@ -21,8 +21,8 @@ class Game():
 				agent = agents.get_random_agent()
 				errors += self._play_one_game(agent)
 
-		frac = (GAMES-errors)/GAMES
-		print("Prediction Accuracy: %.2f" % frac)
+			frac = (GAMES-errors)/GAMES
+			print("Prediction Accuracy: %.2f" % frac)
 
 	def _play_one_game(self, agent):
 		"""Plays a single game against an agent, comprised of ROUNDS iterations"""
@@ -38,10 +38,7 @@ class Game():
 			input = self.model.learn(nn_action, agent_action, input[0], id_logits, id)
 			agent.update(nn_action)
 
-		if pred_id != agent.id():
-		  	return 1
-
-		return 0
+		return 0 if pred_id == agent.id() else 1
 
 
 def main():
