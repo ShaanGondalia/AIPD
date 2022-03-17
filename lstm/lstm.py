@@ -44,7 +44,9 @@ class LSTM(nn.Module):
         """Predicts the ID of an agent based on the input"""
         out = self(input)
         id_logits = out[:, -1, :]
+        print(id_logits)
         pred_id = id_logits.argmax(dim=-1)
+        print(pred_id)
         return pred_id.item(), id_logits
 
     def learn(self, nn_action, opp_action, prev_input, id_logits, id):
@@ -77,7 +79,6 @@ class LSTM(nn.Module):
 
     def load(self, fname):
         self.load_state_dict(torch.load(f"./saved/{fname}"))
-        self.eval()
 
     def _train_batch(self, batch, epoch_accs):
         """Pretrains weights based on a batch of inputs"""
