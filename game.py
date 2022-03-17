@@ -46,11 +46,3 @@ class Game():
 			agent.update(nn_action)
 
 		return 0 if pred_id == agent.id() else 1
-
-
-def main():
-	game = Game()
-	game.play()
-
-if __name__ == "__main__":
-	main()
