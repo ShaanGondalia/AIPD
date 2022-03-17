@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from .hyper_parameters import *
+from .dataset import PreTrainDataset
 import numpy as np
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -22,7 +23,8 @@ class LSTM(nn.Module):
         out = self.id_fc(out)
         return out
 
-    def pretrain(self, dataset):
+    def pretrain(self):
+        dataset = PreTrainDataset()
         dataloader = DataLoader(dataset, batch_size = BATCH_SIZE)
         self.apply(_initialize_weights)
         self.to(DEVICE)
@@ -69,6 +71,13 @@ class LSTM(nn.Module):
         id = [agent.id()]
         id = torch.Tensor(id).to(DEVICE)
         return id.to(torch.int64)
+
+    def save(self, fname):
+        torch.save(self.state_dict(), f"./saved/{fname}")
+
+    def load(self, fname):
+        self.load_state_dict(torch.load(f"./saved/{fname}"))
+        self.eval()
 
     def _train_batch(self, batch, epoch_accs):
         """Pretrains weights based on a batch of inputs"""

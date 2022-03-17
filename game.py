@@ -1,15 +1,20 @@
 from lstm.lstm import LSTM
-from lstm.dataset import PreTrainDataset
 from lstm.hyper_parameters import *
 from tqdm import tqdm
 from agent import agents as ag
 
+FNAME = "lstm"
 
 class Game():
-	def __init__(self):
-		self.dataset = PreTrainDataset()
+	def __init__(self, train):
 		self.model = LSTM(IN, HIDDEN, OUT, ID, LAYERS)
-		self.model.pretrain(self.dataset)
+		self.train = train
+		if train:
+			self.model.pretrain()
+		else:
+			fname = input("Filename to load model:" )
+			self.model.load(fname)
+			self.model.eval()
 
 	def play(self):
 		agents = ag.Agents() # The agents to play against in the tournament
@@ -23,6 +28,9 @@ class Game():
 
 			frac = (GAMES-errors)/GAMES
 			print("Prediction Accuracy: %.2f" % frac)
+		if self.train:
+			fname = input("Filename to save model:" )
+			self.model.save(fname)
 
 	def _play_one_game(self, agent):
 		"""Plays a single game against an agent, comprised of ROUNDS iterations"""
