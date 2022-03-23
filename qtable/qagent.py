@@ -24,6 +24,7 @@ class QAgent:
   def set_epsilon(self, epsilon):
     self.epsilon = epsilon
 
+  # Return action with highest reward, or random
   def max_q(self, state):
     state = str(state)
     q1, q2 = self.get_q(state)
