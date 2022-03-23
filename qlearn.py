@@ -60,6 +60,7 @@ def play_IPD(player_1, player_2, rounds, is_training):
 # TODO: fix player memory, state rewards are currently overflowing
 # TODO: consider filling the table backwards for efficiency, later rounds before earlier rounds
 # TODO: solve problem of players knowing the game length with a probability for ending instead
+# TODO: store number of times a state,action pair has been seen to improve learning, curiosity
 # TODO: use numba here to speed up training
 max_total_reward_1 = 0
 
