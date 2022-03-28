@@ -22,14 +22,15 @@ class MemoryNAgent(BaseAgent):
     self.memory["agent"].pop(0)
     self.memory["opp"].pop(0)
     
-    out_one = 0
-    out_two = 0
+    out = 0
     for bit in self.memory["agent"]:
-        out_one = (out_one << 1) | bit
+        out = (out << 1) | bit
     for bit in self.memory["opp"]:
-        out_two = (out_two << 1) | bit
+        out = (out << 1) | bit
+    print(memory)
+    print(out)
 
-    self.val = self.strategy[out_one + out_two]
+    self.val = self.strategy[out]
 
   def opt(self):
     return 0 if self.val==1 else 1
