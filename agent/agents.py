@@ -4,9 +4,12 @@ from .defect_agent import DefectAgent
 from .grudge_agent import GrudgeAgent
 import numpy as np
 
+
+MEMORY_AGENT_MOVES = [0, 1, 0, 1] #CC:C, CD:D, DC:C, DD:D
+
 class Agents():
   def __init__(self):
-    self.agents = [CooperateAgent(), DefectAgent(), CopyAgent(), GrudgeAgent()]
+    self.agents = [CooperateAgent(0), DefectAgent(1), CopyAgent(2), MemoryNAgent(3, 1, MEMORY_AGENT_MOVES)]
 
   def get_random_agent(self):
     agent = np.random.choice(self.agents)

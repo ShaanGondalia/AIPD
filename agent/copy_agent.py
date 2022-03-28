@@ -1,8 +1,8 @@
 from .base_agent import BaseAgent
 
 class CopyAgent(BaseAgent):
-  def __init__(self):
-    super().__init__(2)
+  def __init__(self, id):
+    super().__init__(id)
     self.val = 0
 
   def update(self, val):
