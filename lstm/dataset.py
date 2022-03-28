@@ -27,7 +27,7 @@ class PreTrainDataset(Dataset):
       self.data = []
 
       for agent in agents.agents:
-          for moveset in tqdm(movesets):
+          for moveset in movesets:
               agent_moves = []
               for move in moveset:
                   agent_moves.append(agent.play())

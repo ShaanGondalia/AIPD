@@ -3,21 +3,21 @@ from lstm.hyper_parameters import *
 from tqdm import tqdm
 from agent import agents as ag
 
+
 class Game():
-	def __init__(self, train, load, save):
+	def __init__(self):
 		self.lstm = LSTM(IN, HIDDEN, OUT, ID, LAYERS)
-		self.train = train
-		self.load = load
-		self.save = save
 		self.agents = ag.Agents() # The agents to play against in the tournament
-		if self.train:
-			self.lstm.train()
-			if not self.load:
-				self.lstm.pretrain(self.agents)
-		else:
-			self.lstm.eval()
-		if self.load:
-			self.lstm.load(self.load)
+
+	def train(self):
+		self.lstm.train()
+		self.lstm.pretrain(self.agents)
+
+	def save(self, fname):
+		self.lstm.save(fname)
+
+	def load(self, fname):
+		self.lstm.load(fname)
 
 	def play(self):
 		self.lstm.eval()
@@ -31,8 +31,6 @@ class Game():
 
 			frac = (GAMES-errors)/GAMES
 			print("Prediction Accuracy: %.2f" % frac)
-		if self.save:
-			self.lstm.save(self.save)
 
 	def _play_one_game(self, agent):
 		"""Plays a single game against an agent, comprised of ROUNDS iterations"""
