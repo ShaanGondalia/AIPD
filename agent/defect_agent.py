@@ -7,3 +7,6 @@ class DefectAgent(BaseAgent):
   
   def opt(self):
     return 1
+
+  def reset(self):
+    self.val = 1

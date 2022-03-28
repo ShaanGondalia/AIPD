@@ -12,3 +12,7 @@ class Agents():
     agent = np.random.choice(self.agents)
     return agent
 
+  def reset_all_agents(self):
+    for agent in self.agents:
+        agent.reset()
+
