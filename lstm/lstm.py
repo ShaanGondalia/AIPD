@@ -23,8 +23,8 @@ class LSTM(nn.Module):
         out = self.id_fc(out)
         return out
 
-    def pretrain(self):
-        dataset = PreTrainDataset()
+    def pretrain(self, agents):
+        dataset = PreTrainDataset(agents)
         dataloader = DataLoader(dataset, batch_size = BATCH_SIZE)
         self.apply(_initialize_weights)
         self.to(DEVICE)
@@ -57,9 +57,9 @@ class LSTM(nn.Module):
         curr_input[1] = opp_action
         curr_input = torch.Tensor(curr_input).to(DEVICE).unsqueeze(0)
 
-        id_loss = self.criterion(id_logits, id)
-        id_loss.backward()
-        self.optimizer.step()
+        # id_loss = self.criterion(id_logits, id)
+        # id_loss.backward()
+        # self.optimizer.step()
         return torch.cat([prev_input, curr_input]).unsqueeze(0)
 
     def build_input_vector(self, prev_agent_choice):

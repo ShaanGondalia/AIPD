@@ -6,8 +6,8 @@ from .hyper_parameters import *
 
 class PreTrainDataset(Dataset):
 
-  def __init__(self):
-    self.generate_data()
+  def __init__(self, agents):
+    self.generate_data(agents)
 
   def __getitem__(self, idx):
     item = self.data[idx]
@@ -21,44 +21,22 @@ class PreTrainDataset(Dataset):
         "output" : agent_id
     }
 
-  def generate_data(self):
+  def generate_data(self, agents):
       d = np.array([seq for seq in itertools.product([0,1], repeat=ROUNDS)])
-
-      #Generate Dataset for All Existing Moves
-      cooperate = np.array([0 for i in range(ROUNDS)])
-      defect = np.array([1 for i in range(ROUNDS)])
-
       movesets = random.sample(list(d), SAMPLE)
       self.data = []
-      for moveset in movesets:
-          self.data.append({
-              "NN" : moveset,
-              "AGENT" : cooperate,
-              "ID" : 0
-          })
-          self.data.append({
-              "NN" : moveset,
-              "AGENT" : defect,
-              "ID" : 1
-          })
-          copy_moveset = [0]
-          copy_moveset.extend(moveset[1:])
-          copy_moveset = np.array(copy_moveset)
-          self.data.append({
-              "NN": moveset,
-              "AGENT" : copy_moveset,
-              "ID" : 2
-          })
-          first_cheat = np.where(moveset[0] == 1)[0]
-          if len(first_cheat) > 0:
-              grudge_moveset = np.array([0 if i < first_cheat else 1 for i in range(ROUNDS)])
-          else:
-              grudge_moveset = cooperate
-          self.data.append({
-              "NN" : moveset,
-              "AGENT" : grudge_moveset,
-              "ID" : 3
-          })
+
+      for agent in agents.agents:
+          for moveset in movesets:
+              agent_moves = []
+              for move in moveset:
+                  agent_moves.append(agent.play())
+                  agent.update(move)
+              self.data.append({
+                  "NN" : moveset,
+                  "AGENT" : agent_moves,
+                  "ID" : agent.id()
+              })
 
       random.shuffle(self.data)
 
