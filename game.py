@@ -27,7 +27,7 @@ class Game():
 			for i in tqdm(range(GAMES)):
 				agent = self.agents.get_random_agent()
 				errors += self._play_one_game(agent)
-				self.agents.reset_all_agents()
+				agent.reset()
 
 			frac = (GAMES-errors)/GAMES
 			print("Prediction Accuracy: %.2f" % frac)

@@ -15,8 +15,3 @@ class Agents():
   def get_random_agent(self):
     agent = np.random.choice(self.agents)
     return agent
-
-  def reset_all_agents(self):
-    for agent in self.agents:
-        agent.reset()
-

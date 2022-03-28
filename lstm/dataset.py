@@ -27,7 +27,7 @@ class PreTrainDataset(Dataset):
       self.data = []
 
       for agent in agents.agents:
-          for moveset in movesets:
+          for moveset in tqdm(movesets):
               agent_moves = []
               for move in moveset:
                   agent_moves.append(agent.play())
@@ -37,6 +37,7 @@ class PreTrainDataset(Dataset):
                   "AGENT" : agent_moves,
                   "ID" : agent.id()
               })
+              agent.reset()
 
       random.shuffle(self.data)
 

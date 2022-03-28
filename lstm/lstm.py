@@ -34,7 +34,7 @@ class LSTM(nn.Module):
         self.criterion = nn.CrossEntropyLoss()
         self.criterion = self.criterion.to(DEVICE)
 
-        for epoch in range(EPOCHS):
+        for epoch in range(PRETRAIN_EPOCHS):
             epoch_accs = []
             for batch in tqdm(dataloader):
                 self._train_batch(batch, epoch_accs)
@@ -44,9 +44,7 @@ class LSTM(nn.Module):
         """Predicts the ID of an agent based on the input"""
         out = self(input)
         id_logits = out[:, -1, :]
-        print(id_logits)
         pred_id = id_logits.argmax(dim=-1)
-        print(pred_id)
         return pred_id.item(), id_logits
 
     def rebuild_input(self, nn_action, opp_action, prev_input):
