@@ -17,7 +17,7 @@ class MemoryNAgent(BaseAgent):
     self.val = 0
 
   def update(self, opp_move):
-    self.memory["agent"].append(self.opt())
+    self.memory["agent"].append(self.val)
     self.memory["opp"].append(opp_move)
     self.memory["agent"].pop(0)
     self.memory["opp"].pop(0)

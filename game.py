@@ -1,6 +1,7 @@
 from lstm.lstm import LSTM
 from lstm.hyper_parameters import *
 from tqdm import tqdm
+import numpy as np
 from agent import agents as ag
 
 
@@ -41,7 +42,8 @@ class Game():
         for _ in range(ROUNDS):
             pred_id, id_logits = self.lstm.predict_id(input, agent)
             # TODO: Implement Q Table here
-            nn_action = agent.opt() # Currently make the optimal move
+            # nn_action = agent.opt() # Make the optimal move
+            nn_action = np.random.choice([0,1]) # Make a random move
             agent_action = int(agent.play())
             input = self.lstm.rebuild_input(nn_action, agent_action, input[0])
             agent.update(nn_action)

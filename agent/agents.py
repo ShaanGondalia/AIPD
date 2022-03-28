@@ -10,8 +10,8 @@ MEMORY_AGENT_MOVES = [0, 1, 0, 1] #CC:C, CD:D, DC:C, DD:D
 
 class Agents():
   def __init__(self):
-    # self.agents = [CooperateAgent(0), DefectAgent(1), CopyAgent(2), MemoryNAgent(3, 1, MEMORY_AGENT_MOVES)]
-    self.agents = [CooperateAgent(0), DefectAgent(1), CopyAgent(2)]
+    self.agents = [CooperateAgent(0), DefectAgent(1), CopyAgent(2), MemoryNAgent(3, 1, MEMORY_AGENT_MOVES)]
+    # self.agents = [CooperateAgent(0), DefectAgent(1), CopyAgent(2)]
 
   def get_random_agent(self):
     agent = np.random.choice(self.agents)
