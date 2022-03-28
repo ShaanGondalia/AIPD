@@ -2,6 +2,7 @@ from lstm.lstm import LSTM
 from lstm.hyper_parameters import *
 from tqdm import tqdm
 import numpy as np
+import torch.nn.functional as nnf
 from agent import agents as ag
 
 
@@ -42,6 +43,7 @@ class Game():
         for _ in range(ROUNDS):
             pred_id, id_logits = self.lstm.predict_id(input, agent)
             # TODO: Implement Q Table here
+            probs = nnf.softmax(id_logits, dim=1)
             # nn_action = agent.opt() # Make the optimal move
             nn_action = np.random.choice([0,1]) # Make a random move
             agent_action = int(agent.play())
