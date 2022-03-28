@@ -27,8 +27,6 @@ class MemoryNAgent(BaseAgent):
         out = (out << 1) | bit
     for bit in self.memory["opp"]:
         out = (out << 1) | bit
-    print(memory)
-    print(out)
 
     self.val = self.strategy[out]
 
