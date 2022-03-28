@@ -45,7 +45,8 @@ class Game():
 			# TODO: Implement Q Table here
 			nn_action = agent.opt() # Currently make the optimal move
 			agent_action = int(agent.play())
-			input = self.lstm.learn(nn_action, agent_action, input[0], id_logits, id)
+			input = self.lstm.rebuild_input(nn_action, agent_action, input[0])
 			agent.update(nn_action)
+		# self.lstm.learn(id_logits, id)
 
 		return 0 if pred_id == agent.id() else 1

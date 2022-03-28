@@ -2,6 +2,7 @@ from .cooperate_agent import CooperateAgent
 from .copy_agent import CopyAgent
 from .defect_agent import DefectAgent
 from .grudge_agent import GrudgeAgent
+from .memory_n_agent import MemoryNAgent
 import numpy as np
 
 

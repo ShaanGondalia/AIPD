@@ -49,18 +49,18 @@ class LSTM(nn.Module):
         print(pred_id)
         return pred_id.item(), id_logits
 
-    def learn(self, nn_action, opp_action, prev_input, id_logits, id):
-        """Optimizes model weights based on current input, previous input, expected id, and actual id"""
+    def rebuild_input(self, nn_action, opp_action, prev_input):
         curr_input = [0, 0]
-
         curr_input[0] = nn_action
         curr_input[1] = opp_action
         curr_input = torch.Tensor(curr_input).to(DEVICE).unsqueeze(0)
-
-        # id_loss = self.criterion(id_logits, id)
-        # id_loss.backward()
-        # self.optimizer.step()
         return torch.cat([prev_input, curr_input]).unsqueeze(0)
+
+    def learn(self, id_logits, id):
+        """Optimizes model weights based on current input, previous input, expected id, and actual id"""
+        id_loss = self.criterion(id_logits, id)
+        id_loss.backward()
+        self.optimizer.step()
 
     def build_input_vector(self, prev_agent_choice):
         """Creates NN input vector"""
