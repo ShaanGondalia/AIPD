@@ -35,15 +35,15 @@ class Game():
     def _play_one_game(self, agent):
         """Plays a single game against an agent, comprised of ROUNDS iterations"""
         prev_agent_choice = agent.play()
-        inputs = self.lstm.build_input_vector(prev_agent_choice)
-        ident = self.lstm.build_id_vector(agent)
+        input = self.lstm.build_input_vector(prev_agent_choice)
+        id = self.lstm.build_id_vector(agent)
         # Play ROUNDS iterations of the prisoners dilemma against the same agent
         for _ in range(ROUNDS):
-            pred_id, id_logits = self.lstm.predict_id(inputs, agent)
+            pred_id, id_logits = self.lstm.predict_id(input, agent)
             # TODO: Implement Q Table here
             nn_action = agent.opt() # Currently make the optimal move
             agent_action = int(agent.play())
-            inputs = self.lstm.rebuild_input(nn_action, agent_action, inputs[0])
+            input = self.lstm.rebuild_input(nn_action, agent_action, input[0])
             agent.update(nn_action)
         # self.lstm.learn(id_logits, id)
 

@@ -36,9 +36,9 @@ class LSTM(nn.Module):
                 self._train_batch(batch, epoch_accs)
             print(np.mean(epoch_accs))
 
-    def predict_id(self, inputs, agent):
+    def predict_id(self, input, agent):
         """Predicts the ID of an agent based on the input"""
-        out = self(inputs)
+        out = self(input)
         id_logits = out[:, -1, :]
         pred_id = id_logits.argmax(dim=-1)
         return pred_id.item(), id_logits
@@ -50,9 +50,9 @@ class LSTM(nn.Module):
         curr_input = torch.Tensor(curr_input).to(DEVICE).unsqueeze(0)
         return torch.cat([prev_input, curr_input]).unsqueeze(0)
 
-    def learn(self, id_logits, ident):
+    def learn(self, id_logits, id):
         """Optimizes model weights based on current input, previous input, expected id, and actual id"""
-        id_loss = self.criterion(id_logits, ident)
+        id_loss = self.criterion(id_logits, id)
         id_loss.backward()
         self.optimizer.step()
 
@@ -64,15 +64,15 @@ class LSTM(nn.Module):
 
     def build_id_vector(self, agent):
         """Find id of agent (another input to NN for regularization)"""
-        ident = [agent.id()]
-        ident = torch.Tensor(ident).to(DEVICE)
-        return ident.to(torch.int64)
+        id = [agent.id()]
+        id = torch.Tensor(id).to(DEVICE)
+        return id.to(torch.int64)
 
     def save(self, fname):
-        torch.save(self.state_dict(), f"lstm/models/{fname}")
+        torch.save(self.state_dict(), f"lstm/models/{fname}.pth")
 
     def load(self, fname):
-        self.load_state_dict(torch.load(f"lstm/models/{fname}"))
+        self.load_state_dict(torch.load(f"lstm/models/{fname}.pth"))
         self.to(DEVICE)
     
     def _train_batch(self, batch, epoch_accs):
