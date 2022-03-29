@@ -23,21 +23,7 @@ def play_IPD(player_1, player_2, rounds, is_training):
       player_2_actions.append(action_2)
       curr_moveset = np.array([player_1_actions, player_2_actions]).T
 
-      reward_1 = 0
-      reward_2 = 0
-
-      if action_1 == 0 and action_2 == 0: # Both players cooperate
-            reward_1 = REWARD[0][0]
-            reward_2 = REWARD[0][1]
-      elif action_1 == 0 and action_2 == 1: # Only player 2 defects
-            reward_1 = REWARD[1][0]
-            reward_2 = REWARD[1][1]
-      elif action_1 == 1 and action_2 == 0: # Only player 1 defects
-            reward_1 = REWARD[2][0]
-            reward_2 = REWARD[2][1]
-      elif action_1 == 1 and action_2 == 1: # Both players defect
-            reward_1 = REWARD[3][0]
-            reward_2 = REWARD[3][1]
+      reward_1, reward_2 = get_reward(action_1, action_2)
 
       total_reward_1 += reward_1
       total_reward_2 += reward_2
@@ -49,6 +35,25 @@ def play_IPD(player_1, player_2, rounds, is_training):
         player_1.reward_action(prev_moveset, curr_moveset, action_1, reward_1, is_final_round)
 
     return total_reward_1, total_reward_2, curr_moveset
+
+def get_reward(action_1, action_2):
+    reward_1 = 0
+    reward_2 = 0
+
+    if action_1 == 0 and action_2 == 0: # Both players cooperate
+          reward_1 = REWARD[0][0]
+          reward_2 = REWARD[0][1]
+    elif action_1 == 0 and action_2 == 1: # Only player 2 defects
+          reward_1 = REWARD[1][0]
+          reward_2 = REWARD[1][1]
+    elif action_1 == 1 and action_2 == 0: # Only player 1 defects
+          reward_1 = REWARD[2][0]
+          reward_2 = REWARD[2][1]
+    elif action_1 == 1 and action_2 == 1: # Both players defect
+          reward_1 = REWARD[3][0]
+          reward_2 = REWARD[3][1]
+
+    return reward_1, reward_2
 
 # TRAINING
 # TODO: initial state of (0,0) may bias towards whatever the first selected move is in that state (FIXED: by adding is_curious parameter)
