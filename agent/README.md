@@ -10,7 +10,9 @@ Agents can be defined by extension of the BaseAgent, found in ```base_agent.py``
 
 This distinction between the types of agents and the tournament of agents is important, as the LSTM and Q-Tables are only trained to recognize types of agents, not individual instances of each type. This way, we can set up very large tournaments without increasing the training time of the models too much.
 
-To edit the strategies, available types, and counts of agents the user must edit ```AGENT_DICT``` inside of `agents.py`. In the future, this dictionary may get switched to a configuration file instead of python code.
+To change the strategies, available types, and counts of agents the user must edit ```AGENT_DICT``` inside of `agents.py`. In the future, this dictionary may get switched to a configuration file instead of python code.
+
+Note that whenever a new agent type or strategy is added to the AGENT_DICT, the model **must** be retrained (otherwise results are unknown). Also note that all agent types **must** have a different ID.
 
 ## Defining Strategy for MemoryNAgent
 
