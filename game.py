@@ -29,13 +29,13 @@ class Game():
             ql.train(self.q_agents[agent.id], agent)
 
     def save(self, fname):
-        print(f"Saving Models to file: {args['save']}")
+        print(f"Saving Models to file: {fname}")
         self.lstm.save(fname)
         with open(f'qtable/models/{fname}.pickle', 'wb') as handle:
             pickle.dump(self.q_agents, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     def load(self, fname):
-        print(f"Loading Models from file: {args['load']}")
+        print(f"Loading Models from file: {fname}")
         self.lstm.load(fname)
         with open(f'qtable/models/{fname}.pickle', 'rb') as handle:
             self.q_agents = pickle.load(handle)

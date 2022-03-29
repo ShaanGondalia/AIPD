@@ -1,0 +1,1 @@
+This folder exists to store saved LSTM models
