@@ -46,5 +46,3 @@ class Agents():
   def get_random_agent_in_tournament(self):
     agent = np.random.choice(self.tournament)
     return agent
-
-class Tournament():

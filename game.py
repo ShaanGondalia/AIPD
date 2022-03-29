@@ -57,10 +57,12 @@ class Game():
             frac = (GAMES-errors)/GAMES
             print("Prediction Accuracy: %.2f" % frac)
             print(f"Total Reward: {total_reward}")
+            print(f"Average Reward per Game: {total_reward/GAMES}")
+            print(f"Average Reward per Round: {total_reward/(GAMES*ROUNDS)}")
 
     def _play_one_game(self, agent):
         """Plays a single game against an agent, comprised of ROUNDS iterations"""
-        prev_agent_choice = agent.play()
+        prev_agent_choice = 0 # This should probably get replaced (assume cooperate first)
         prev_agent_moves = []
         prev_nn_moves = []
         reward = 0
@@ -78,7 +80,7 @@ class Game():
             agent.update(nn_action)
             prev_agent_moves.append(agent_action)
             prev_nn_moves.append(nn_action)
-            reward += ql.get_reward(nn_action, agent_action)
+            reward += ql.get_reward(nn_action, agent_action)[0]
         # self.lstm.learn(id_logits, id)
 
         return reward, 0 if pred_id == agent.id() else 1
