@@ -5,14 +5,10 @@ from game import Game
 def main(args):
     game = Game()
     if args['train']:
-        print("Training LSTM")
         game.train()
-        print(f"Saving LSTM to file: {args['save']}")
         game.save(args['save'])    
     else:
-        print(f"Loading LSTM from file: {args['load']}")
         game.load(args['load'])
-        print("Playing Game")
         game.play()
 
 
