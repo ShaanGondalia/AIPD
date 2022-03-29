@@ -46,19 +46,24 @@ class Game():
         for epoch in range(EPOCHS):
             print("EPOCH %d" % epoch)
             errors = 0
+            total_reward = 0
             for i in tqdm(range(GAMES)):
-                agent = self.agents.get_random_agent()
-                errors += self._play_one_game(agent)
+                agent = self.agents.get_random_agent_in_tournament()
+                reward, error = self._play_one_game(agent)
+                errors += error
+                total_reward += reward
                 agent.reset()
 
             frac = (GAMES-errors)/GAMES
             print("Prediction Accuracy: %.2f" % frac)
+            print(f"Total Reward: {total_reward}")
 
     def _play_one_game(self, agent):
         """Plays a single game against an agent, comprised of ROUNDS iterations"""
         prev_agent_choice = agent.play()
         prev_agent_moves = []
         prev_nn_moves = []
+        reward = 0
         input = self.lstm.build_input_vector(prev_agent_choice)
         id = self.lstm.build_id_vector(agent)
         # Play ROUNDS iterations of the prisoners dilemma against the same agent
@@ -73,6 +78,7 @@ class Game():
             agent.update(nn_action)
             prev_agent_moves.append(agent_action)
             prev_nn_moves.append(nn_action)
+            reward += ql.get_reward(nn_action, agent_action)
         # self.lstm.learn(id_logits, id)
 
-        return 0 if pred_id == agent.id() else 1
+        return reward, 0 if pred_id == agent.id() else 1
