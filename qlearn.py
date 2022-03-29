@@ -4,8 +4,6 @@ from agent import agents as ag
 import qtable.hyper_parameters as hp
 import qtable.qagent as qag
 
-player_1 = qag.QAgent(lr = hp.LR, discount = hp.DISCOUNT, epsilon=hp.EPSILON_TRAIN, decay_rate=hp.DECAY_RATE, min_e=hp.MIN_EPSILON, memory=hp.MEMORY)
-player_2 = ag.CopyAgent()
 
 def play_IPD(player_1, player_2, rounds, is_training):
     player_1_actions = []
@@ -62,65 +60,68 @@ def play_IPD(player_1, player_2, rounds, is_training):
 # TODO: solve problem of players knowing the game length with a probability for ending instead
 # TODO: store number of times a state,action pair has been seen to improve learning, curiosity
 # TODO: use numba here to speed up training
-max_total_reward_1 = 0
 
-for i in tqdm(range(hp.EPOCHS)):
-  total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, hp.ROUNDS, True) 
-  max_total_reward_1 = max(total_reward_1, max_total_reward_1)
+def train(player_1, player_2):
+  max_total_reward_1 = 0
 
-# TESTING
-Q_wins = 0
-Q_ties = 0
-Q_loses = 0
-total_rewards_1 = []
-total_rewards_2 = []
-movesets = []
-player_1.set_epsilon(hp.EPSILON_TEST)
+  for i in tqdm(range(hp.EPOCHS)):
+    total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, hp.ROUNDS, True) 
+    max_total_reward_1 = max(total_reward_1, max_total_reward_1)
 
-for i in tqdm(range(hp.TEST_EPOCHS)):
-  total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, hp.ROUNDS, False)    
+def test(player_1, player_2):
+  # TESTING
+  Q_wins = 0
+  Q_ties = 0
+  Q_loses = 0
+  total_rewards_1 = []
+  total_rewards_2 = []
+  movesets = []
+  player_1.set_epsilon(hp.EPSILON_TEST)
 
-  if total_reward_1 > total_reward_2:
-    Q_wins += 1
-  elif total_reward_1 == total_reward_2:
-    Q_ties += 1
-  else:
-    Q_loses += 1
+  for i in tqdm(range(hp.TEST_EPOCHS)):
+    total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, hp.ROUNDS, False)    
 
-  total_rewards_1.append(total_reward_1)
-  total_rewards_2.append(total_reward_2)
-  movesets.append(moveset)
+    if total_reward_1 > total_reward_2:
+      Q_wins += 1
+    elif total_reward_1 == total_reward_2:
+      Q_ties += 1
+    else:
+      Q_loses += 1
 
-Q_table = player_1.get_table()
-Q_table_actual_size = len(Q_table)
-Q_table_max_size = 0
-for i in range(min(hp.ROUNDS, hp.MEMORY + 1)):
-  Q_table_max_size += 4**i
+    total_rewards_1.append(total_reward_1)
+    total_rewards_2.append(total_reward_2)
+    movesets.append(moveset)
 
-print('\n')
-print('Player 1 Wins:', Q_wins)
-print('Player 1 Ties:', Q_ties)
-print('Player 1 Losses:', Q_loses)
-print('\n')
-print('Mutual Coop Reward:', hp.ROUNDS * hp.REWARD[0][0])
-print('Player 1 Max Reward Seen:', max_total_reward_1) # In training
-print('Player 1 Avg Reward:', np.mean(total_rewards_1))
-print('Player 2 Avg Reward:', np.mean(total_rewards_2))
-print('\n')
-print('Q-Table Actual Size:', Q_table_actual_size)
-print('Q-Table Max Size:', Q_table_max_size) # Assuming stochastic opponent
-print('\n')
+  Q_table = player_1.get_table()
+  Q_table_actual_size = len(Q_table)
+  Q_table_max_size = 0
+  for i in range(min(hp.ROUNDS, hp.MEMORY + 1)):
+    Q_table_max_size += 4**i
 
-for i in range(1):
-  print('Player 1 Reward (Sample Test Game):', total_rewards_1[i])
-  print('Player 2 Reward (Sample Test Game):', total_rewards_2[i])
-  print(movesets[i])
   print('\n')
-  
-i = 0
-for k, v in Q_table.items():
-  print(k, v)
+  print('Player 1 Wins:', Q_wins)
+  print('Player 1 Ties:', Q_ties)
+  print('Player 1 Losses:', Q_loses)
   print('\n')
-  i += 1
-  if i > 3:
-      break
+  print('Mutual Coop Reward:', hp.ROUNDS * hp.REWARD[0][0])
+  print('Player 1 Max Reward Seen:', max_total_reward_1) # In training
+  print('Player 1 Avg Reward:', np.mean(total_rewards_1))
+  print('Player 2 Avg Reward:', np.mean(total_rewards_2))
+  print('\n')
+  print('Q-Table Actual Size:', Q_table_actual_size)
+  print('Q-Table Max Size:', Q_table_max_size) # Assuming stochastic opponent
+  print('\n')
+
+  for i in range(1):
+    print('Player 1 Reward (Sample Test Game):', total_rewards_1[i])
+    print('Player 2 Reward (Sample Test Game):', total_rewards_2[i])
+    print(movesets[i])
+    print('\n')
+    
+  i = 0
+  for k, v in Q_table.items():
+    print(k, v)
+    print('\n')
+    i += 1
+    if i > 3:
+        break
