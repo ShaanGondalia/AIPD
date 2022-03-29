@@ -1,12 +1,12 @@
+from agent import agents as ag
 from lstm.lstm import LSTM
 from lstm.hyper_parameters import *
 import qtable.hyper_parameters as qhp
 import qtable.qagent as qag
+import qtable.qlearn as ql
 from tqdm import tqdm
-import qlearn as ql
 import numpy as np
 import torch.nn.functional as nnf
-from agent import agents as ag
 import pickle
 
 
@@ -21,22 +21,27 @@ class Game():
                 decay_rate=qhp.DECAY_RATE, min_e=qhp.MIN_EPSILON, memory=qhp.MEMORY)
 
     def train(self):
+        print("Training LSTM")
         self.lstm.train()
         self.lstm.pretrain(self.agents)
+        print("Training QTables")
         for agent in self.agents.agents:
             ql.train(self.q_agents[agent.id], agent)
 
     def save(self, fname):
+        print(f"Saving Models to file: {args['save']}")
         self.lstm.save(fname)
         with open(f'qtable/models/{fname}.pickle', 'wb') as handle:
             pickle.dump(self.q_agents, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     def load(self, fname):
+        print(f"Loading Models from file: {args['load']}")
         self.lstm.load(fname)
         with open(f'qtable/models/{fname}.pickle', 'rb') as handle:
             self.q_agents = pickle.load(handle)
 
     def play(self):
+        print("Playing Game")
         self.lstm.eval()
         for epoch in range(EPOCHS):
             print("EPOCH %d" % epoch)

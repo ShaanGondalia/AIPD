@@ -1,8 +1,7 @@
 from tqdm import tqdm 
 import numpy as np
 from agent import agents as ag
-import qtable.hyper_parameters as hp
-import qtable.qagent as qag
+from .hyper_parameters import *
 
 
 def play_IPD(player_1, player_2, rounds, is_training):
@@ -28,17 +27,17 @@ def play_IPD(player_1, player_2, rounds, is_training):
       reward_2 = 0
 
       if action_1 == 0 and action_2 == 0: # Both players cooperate
-            reward_1 = hp.REWARD[0][0]
-            reward_2 = hp.REWARD[0][1]
+            reward_1 = REWARD[0][0]
+            reward_2 = REWARD[0][1]
       elif action_1 == 0 and action_2 == 1: # Only player 2 defects
-            reward_1 = hp.REWARD[1][0]
-            reward_2 = hp.REWARD[1][1]
+            reward_1 = REWARD[1][0]
+            reward_2 = REWARD[1][1]
       elif action_1 == 1 and action_2 == 0: # Only player 1 defects
-            reward_1 = hp.REWARD[2][0]
-            reward_2 = hp.REWARD[2][1]
+            reward_1 = REWARD[2][0]
+            reward_2 = REWARD[2][1]
       elif action_1 == 1 and action_2 == 1: # Both players defect
-            reward_1 = hp.REWARD[3][0]
-            reward_2 = hp.REWARD[3][1]
+            reward_1 = REWARD[3][0]
+            reward_2 = REWARD[3][1]
 
       total_reward_1 += reward_1
       total_reward_2 += reward_2
@@ -64,8 +63,8 @@ def play_IPD(player_1, player_2, rounds, is_training):
 def train(player_1, player_2):
   max_total_reward_1 = 0
 
-  for i in tqdm(range(hp.EPOCHS)):
-    total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, hp.ROUNDS, True) 
+  for i in tqdm(range(EPOCHS)):
+    total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, ROUNDS, True) 
     max_total_reward_1 = max(total_reward_1, max_total_reward_1)
 
 def test(player_1, player_2):
@@ -76,10 +75,10 @@ def test(player_1, player_2):
   total_rewards_1 = []
   total_rewards_2 = []
   movesets = []
-  player_1.set_epsilon(hp.EPSILON_TEST)
+  player_1.set_epsilon(EPSILON_TEST)
 
-  for i in tqdm(range(hp.TEST_EPOCHS)):
-    total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, hp.ROUNDS, False)    
+  for i in tqdm(range(TEST_EPOCHS)):
+    total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, ROUNDS, False)    
 
     if total_reward_1 > total_reward_2:
       Q_wins += 1
@@ -95,7 +94,7 @@ def test(player_1, player_2):
   Q_table = player_1.get_table()
   Q_table_actual_size = len(Q_table)
   Q_table_max_size = 0
-  for i in range(min(hp.ROUNDS, hp.MEMORY + 1)):
+  for i in range(min(ROUNDS, MEMORY + 1)):
     Q_table_max_size += 4**i
 
   print('\n')
@@ -103,7 +102,7 @@ def test(player_1, player_2):
   print('Player 1 Ties:', Q_ties)
   print('Player 1 Losses:', Q_loses)
   print('\n')
-  print('Mutual Coop Reward:', hp.ROUNDS * hp.REWARD[0][0])
+  print('Mutual Coop Reward:', ROUNDS * REWARD[0][0])
   print('Player 1 Max Reward Seen:', max_total_reward_1) # In training
   print('Player 1 Avg Reward:', np.mean(total_rewards_1))
   print('Player 2 Avg Reward:', np.mean(total_rewards_2))
