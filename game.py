@@ -12,8 +12,8 @@ import pickle
 
 class Game():
     def __init__(self):
-        self.lstm = LSTM(IN, HIDDEN, OUT, ID, LAYERS)
         self.agents = ag.Agents() # The agents to play against in the tournament
+        self.lstm = LSTM(IN, HIDDEN, OUT, len(self.agents.agents), LAYERS)
         self.q_agents = {}
         for agent in self.agents.agents:
             self.q_agents[agent.id()] = qag.QAgent(lr = qhp.LR, 
