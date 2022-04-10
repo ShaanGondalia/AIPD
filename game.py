@@ -21,8 +21,8 @@ class Game():
                 decay_rate=qhp.DECAY_RATE, min_e=qhp.MIN_EPSILON, memory=qhp.MEMORY)
 
     def train_all(self):
-        train_lstm()
-        train_qtables()
+        self.train_lstm()
+        self.train_qtables()
 
     def train_lstm(self):
         print("Training LSTM")
@@ -35,8 +35,8 @@ class Game():
             ql.train(self.q_agents[agent.id()], agent)
 
     def save_all(self, fname):
-        save_lstm(fname)
-        save_qtables(fname)
+        self.save_lstm(fname)
+        self.save_qtables(fname)
 
     def save_lstm(self, fname):
         print(f"Saving LSTM to file: lstm/models/{fname}.pth")
