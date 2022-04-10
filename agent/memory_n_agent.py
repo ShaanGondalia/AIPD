@@ -9,7 +9,7 @@ class MemoryNAgent(BaseAgent):
   # moves. For instance, the sequence 00 01 corresponds to the sequence of two
   # cooperations from the agent and a cooperation and defection from the opponent.
   # The index of the list is given by the decimal representation of the sequence.
-  def __init__(self, id, name, n, user_defined_strategy):
+  def __init__(self, name, id, n, user_defined_strategy):
     super().__init__(id)
     self.name = name
     self.n = n

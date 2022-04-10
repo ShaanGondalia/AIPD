@@ -1,5 +1,6 @@
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+from .hyper_parameters import *
 import numpy as np
 import torch
 
@@ -115,6 +116,8 @@ def visualize_model_confidence(
   predicted_id = id_logits.argmax(dim=-1).item()
   print("The Predicted ID is: %d" % predicted_id)
 
+  confidences = np.array(confidences)
+  plt.figure()
   for i in range(confidences.shape[1]):
     plt.plot(confidences[:, i], label = "Agent %d" % i)
   plt.ylim([0,1])
@@ -125,4 +128,5 @@ def visualize_model_confidence(
   plt.title("Network Confidence")
   plt.savefig(save_path, dpi = 200)
   plt.show()
+
 

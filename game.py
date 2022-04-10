@@ -27,7 +27,6 @@ class Game():
 
     def train_lstm(self):
         print("Training LSTM")
-        self.lstm.train()
         self.lstm.pretrain(self.agents)
 
     def train_qtables(self):
@@ -54,11 +53,11 @@ class Game():
         with open(f'qtable/models/{fname}.pickle', 'rb') as handle:
             self.q_agents = pickle.load(handle)
 
-    def visualize_lstm(fname):
+    def visualize_lstm(self, fname):
         accuracy_file = f'lstm/visuals/accuracy/{fname}.png'
         visualize_model_accuracy(self.lstm, self.agents.agents, accuracy_file)
         for agent in self.agents.agents:
-            confidence_file = f'lstm/visuals/accuracy/{fname}_{agent.name}.png'
+            confidence_file = f'lstm/visuals/confidence/{fname}_{agent.name}.png'
             visualize_model_confidence(self.lstm, agent, agent.play(), 20, confidence_file)
 
     def play(self):
