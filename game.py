@@ -11,8 +11,8 @@ import pickle
 
 
 class Game():
-    def __init__(self):
-        self.agents = ag.Agents() # The agents to play against in the tournament
+    def __init__(self, agents_config):
+        self.agents = ag.Agents(agents_config) # The agents to play against in the tournament
         self.lstm = LSTM(IN, HIDDEN, OUT, len(self.agents.agents), LAYERS)
         self.q_agents = {}
         for agent in self.agents.agents:
@@ -20,17 +20,30 @@ class Game():
                 discount = qhp.DISCOUNT, epsilon=qhp.EPSILON_TRAIN, 
                 decay_rate=qhp.DECAY_RATE, min_e=qhp.MIN_EPSILON, memory=qhp.MEMORY)
 
-    def train(self):
+    def train_all(self):
+        train_lstm()
+        train_qtables()
+
+    def train_lstm(self):
         print("Training LSTM")
         self.lstm.train()
         self.lstm.pretrain(self.agents)
+
+    def train_qtables(self):
         print("Training QTables")
         for agent in self.agents.agents:
             ql.train(self.q_agents[agent.id()], agent)
 
-    def save(self, fname):
-        print(f"Saving Models to file: {fname}")
+    def save_all(self, fname):
+        save_lstm(fname)
+        save_qtables(fname)
+
+    def save_lstm(self, fname):
+        print(f"Saving LSTM to file: lstm/models/{fname}.pth")
         self.lstm.save(fname)
+
+    def save_qtables(self, fname):
+        print(f"Saving Qtables to file: qtable/models/{fname}.pickle")
         with open(f'qtable/models/{fname}.pickle', 'wb') as handle:
             pickle.dump(self.q_agents, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
