@@ -1,0 +1,32 @@
+{
+  "agents":[
+    {
+      "name": "Cooperate",
+      "id": 0,
+      "count": 2,
+      "n": 1,
+      "strategy": [0, 0, 0, 0]
+    },
+    {
+      "name": "Defect",
+      "id": 1,
+      "count": 1,
+      "n": 1,
+      "strategy": [1, 1, 1, 1]
+    },
+    {
+      "name": "Copy",
+      "id": 2,
+      "count": 3,
+      "n": 1,
+      "strategy": [0, 1, 0, 1]
+    },
+    {
+      "name": "Generic",
+      "id": 3,
+      "count": 1,
+      "n": 1,
+      "strategy": [1, 0, 0, 1]
+    }
+  ]
+}
