@@ -17,9 +17,11 @@ def main(args):
 			game.save_lstm(args['save'])
 		else:
 			game.train_all()
-			game.save(args['save'])
+			game.save_all(args['save'])
 	else:
 		game.load(args['load'])
+		if args['visualize']:
+			game.visualize_lstm(args['load'])
 		game.play()
 
 

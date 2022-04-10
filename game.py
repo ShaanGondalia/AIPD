@@ -1,6 +1,7 @@
 from agent import agents as ag
 from lstm.lstm import LSTM
 from lstm.hyper_parameters import *
+from lstm.visualize import visualize_model_accuracy, visualize_model_confidence
 import qtable.hyper_parameters as qhp
 import qtable.qagent as qag
 import qtable.qlearn as ql
@@ -53,9 +54,17 @@ class Game():
         with open(f'qtable/models/{fname}.pickle', 'rb') as handle:
             self.q_agents = pickle.load(handle)
 
+    def visualize_lstm(fname):
+        accuracy_file = f'lstm/visuals/accuracy/{fname}.png'
+        visualize_model_accuracy(self.lstm, self.agents.agents, accuracy_file)
+        for agent in self.agents.agents:
+            confidence_file = f'lstm/visuals/accuracy/{fname}_{agent.name}.png'
+            visualize_model_confidence(self.lstm, agent, agent.play(), 20, confidence_file)
+
     def play(self):
         print("Playing Game")
         self.lstm.eval()
+        accuracies = {}
         for epoch in range(EPOCHS):
             print("EPOCH %d" % epoch)
             errors = 0

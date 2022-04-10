@@ -12,9 +12,9 @@ class Agents():
     print("Tournament configuration:")
     for agent in agent_list:
       print(f"\t{agent['name']}: {agent['count']}")
-      self.agents.append(MemoryNAgent(agent['id'], agent['n'], agent['strategy']))
+      self.agents.append(MemoryNAgent(agent['name'], agent['id'], agent['n'], agent['strategy']))
       for i in range(agent['count']):
-        self.tournament.append(MemoryNAgent(agent['id'], agent['n'], agent['strategy']))
+        self.tournament.append(MemoryNAgent(agent['name'], agent['id'], agent['n'], agent['strategy']))
 
   def get_random_agent(self):
     agent = np.random.choice(self.agents)
