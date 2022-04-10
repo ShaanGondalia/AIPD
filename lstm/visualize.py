@@ -1,5 +1,7 @@
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import numpy as np
+import torch
 
 CB91_Blue = '#2CBDFE'
 CB91_Green = '#47DBCD'
