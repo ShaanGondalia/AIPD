@@ -68,7 +68,7 @@ class Game():
         self.visualize_lstm_accuracy(accuracy_file)
         for agent in self.agents.agents:
             confidence_file = f'lstm/visuals/confidence/{fname}_{agent.name}.png'
-            self.visualize_lstm_confidence(confidence_file)
+            self.visualize_lstm_confidence(agent, confidence_file)
 
     def play(self):
         print("Playing Game")
@@ -80,7 +80,7 @@ class Game():
             total_reward = 0
             for i in tqdm(range(TEST_GAMES)):
                 agent = self.agents.get_random_agent_in_tournament()
-                reward, error = self._play_one_game(agent)
+                reward, error = self._play_one_game(agent, TEST_ROUNDS)
                 errors += error
                 total_reward += reward
                 agent.reset()
@@ -91,7 +91,7 @@ class Game():
             print(f"Average Reward per Game: {total_reward/TEST_GAMES}")
             print(f"Average Reward per Round: {total_reward/(TEST_GAMES*TEST_ROUNDS)}")
 
-    def _play_one_game(self, agent):
+    def _play_one_game(self, agent, rounds):
         """Plays a single game against an agent, comprised of ROUNDS iterations"""
         prev_agent_choice = 0 # This should probably get replaced (assume cooperate first)
         prev_agent_moves = []
@@ -100,7 +100,7 @@ class Game():
         input = self.lstm.build_input_vector(prev_agent_choice)
         id = self.lstm.build_id_vector(agent)
         # Play ROUNDS iterations of the prisoners dilemma against the same agent
-        for _ in range(TEST_ROUNDS):
+        for _ in range(rounds):
             prev_moves = np.array([prev_nn_moves, prev_agent_moves]).T
             pred_id, id_logits = self.lstm.predict_id(input, agent)
             probs = nnf.softmax(id_logits, dim=1).detach().cpu().numpy()
@@ -116,7 +116,7 @@ class Game():
 
         return reward, 0 if pred_id == agent.id() else 1
 
-    def visualize_lstm_accuracy(save_path, defect_first_ids = [], max_length = 20) :
+    def visualize_lstm_accuracy(self, save_path, defect_first_ids = [], max_length = 20) :
         self.lstm.eval()
         accuracies = {}
         print("Beginning Accuracy Evaluation")
@@ -124,11 +124,11 @@ class Game():
             errors = 0
             for game in tqdm(range(TEST_GAMES)):
                 agent = self.agents.get_random_agent()
-                reward, error = self._play_one_game(agent) 
+                reward, error = self._play_one_game(agent, length) 
                 errors += error
                 agent.reset()
 
-            frac = (games-errors)/games
+            frac = (TEST_GAMES-errors)/TEST_GAMES
             print("Prediction Accuracy with Length %s: %.2f" %(length, frac))
             accuracies[length] = frac
 
@@ -144,7 +144,7 @@ class Game():
         plt.savefig(save_path, dpi = 200)
         plt.show()
 
-    def visualize_lstm_confidence(agent, save_path, max_length=20):
+    def visualize_lstm_confidence(self, agent, save_path, max_length=20):
         self.lstm.eval()
         confidences = []
         print("Beginning Confidence Evaluation")
