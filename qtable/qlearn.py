@@ -1,6 +1,5 @@
 from tqdm import tqdm 
 import numpy as np
-from agent import agents as ag
 
 
 def play_IPD(player_1, player_2, rounds, is_training, reward):
@@ -22,7 +21,7 @@ def play_IPD(player_1, player_2, rounds, is_training, reward):
       player_2_actions.append(action_2)
       curr_moveset = np.array([player_1_actions, player_2_actions]).T
 
-      reward_1, reward_2 = get_reward(action_1, action_2)
+      reward_1, reward_2 = get_reward(action_1, action_2, reward)
 
       total_reward_1 += reward_1
       total_reward_2 += reward_2
@@ -35,7 +34,7 @@ def play_IPD(player_1, player_2, rounds, is_training, reward):
 
     return total_reward_1, total_reward_2, curr_moveset
 
-def get_reward(action_1, action_2):
+def get_reward(action_1, action_2, reward):
     reward_1 = 0
     reward_2 = 0
 
