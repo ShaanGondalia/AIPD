@@ -101,7 +101,7 @@ class Game():
         # Play ROUNDS iterations of the prisoners dilemma against the same agent
         for _ in range(rounds):
             prev_moves = np.array([prev_nn_moves, prev_agent_moves]).T
-            pred_id, id_logits = self.lstm.predict_id(input, agent)
+            pred_id, id_logits = self.lstm.predict_id(input)
             probs = nnf.softmax(id_logits, dim=1).detach().cpu().numpy()
             agent_action = int(agent.play())
             # TODO: Implement Linear combination of results here
@@ -149,7 +149,7 @@ class Game():
         print("Beginning Confidence Evaluation")
         input = self.lstm.build_input_vector(agent.play())
         for i in range(1, max_length+1):
-            pred_id, id_logits = self.lstm.predict_id(input, agent)
+            pred_id, id_logits = self.lstm.predict_id(input)
             nn_action = np.random.randint(2)
             agent_action = int(agent.play())
             input = self.lstm.rebuild_input(nn_action, agent_action, input[0])

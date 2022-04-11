@@ -36,7 +36,7 @@ class LSTM(nn.Module):
                 self._train_batch(batch, epoch_accs)
             print(np.mean(epoch_accs))
 
-    def predict_id(self, input, agent):
+    def predict_id(self, input):
         """Predicts the ID of an agent based on the input"""
         out = self(input)
         id_logits = out[:, -1, :]
