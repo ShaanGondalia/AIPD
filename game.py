@@ -2,7 +2,7 @@ from agent import agents as ag
 from tqdm import tqdm
 from params import *
 from lstm.lstm import LSTM
-from lstm.visualize import visualize_model_accuracy, visualize_model_confidence
+import matplotlib.pyplot as plt
 import qtable.hyper_parameters as qhp
 import qtable.qagent as qag
 import qtable.qlearn as ql
@@ -10,6 +10,15 @@ import numpy as np
 import torch.nn.functional as nnf
 import pickle
 
+CB91_Blue = '#2CBDFE'
+CB91_Green = '#47DBCD'
+CB91_Pink = '#F3A0F2'
+CB91_Purple = '#9D2EC5'
+CB91_Violet = '#661D98'
+CB91_Amber = '#F5B14C'
+color_list = [CB91_Blue, CB91_Pink, CB91_Green, CB91_Amber,
+              CB91_Purple, CB91_Violet]
+plt.rcParams['axes.prop_cycle'] = plt.cycler(color=color_list)
 
 class Game():
     def __init__(self, agents_config):
@@ -56,10 +65,10 @@ class Game():
 
     def visualize_lstm(self, fname):
         accuracy_file = f'lstm/visuals/accuracy/{fname}.png'
-        visualize_model_accuracy(self.lstm, self.agents.agents, accuracy_file)
+        self.visualize_lstm_accuracy(accuracy_file)
         for agent in self.agents.agents:
             confidence_file = f'lstm/visuals/confidence/{fname}_{agent.name}.png'
-            visualize_model_confidence(self.lstm, agent, agent.play(), 20, confidence_file)
+            self.visualize_lstm_confidence(confidence_file)
 
     def play(self):
         print("Playing Game")
@@ -106,3 +115,62 @@ class Game():
         # self.lstm.learn(id_logits, id)
 
         return reward, 0 if pred_id == agent.id() else 1
+
+    def visualize_lstm_accuracy(save_path, defect_first_ids = [], max_length = 20) :
+        self.lstm.eval()
+        accuracies = {}
+        print("Beginning Accuracy Evaluation")
+        for length in range(1, max_length+1):
+            errors = 0
+            for game in tqdm(range(TEST_GAMES)):
+                agent = self.agents.get_random_agent()
+                reward, error = self._play_one_game(agent) 
+                errors += error
+                agent.reset()
+
+            frac = (games-errors)/games
+            print("Prediction Accuracy with Length %s: %.2f" %(length, frac))
+            accuracies[length] = frac
+
+        x = list(accuracies.keys())
+        y = list(accuracies.values())
+        plt.plot(x, y, 'o-')
+        plt.ylim([0,1])
+        plt.xlim([0, max_length+1])
+        plt.grid()
+        plt.xlabel("Number of Rounds Played")
+        plt.ylabel("Prediction Accuracy")
+        plt.title("Rounds vs Accuracy")
+        plt.savefig(save_path, dpi = 200)
+        plt.show()
+
+    def visualize_lstm_confidence(agent, save_path, max_length=20):
+        self.lstm.eval()
+        confidences = []
+        print("Beginning Confidence Evaluation")
+        input = self.lstm.build_input_vector(agent.play())
+        for i in range(1, max_length+1):
+            pred_id, id_logits = self.lstm.predict_id(input, agent)
+            nn_action = np.random.randint(2)
+            agent_action = int(agent.play())
+            input = self.lstm.rebuild_input(nn_action, agent_action, input[0])
+            opponent.update(nn_action)
+
+            probs = torch.softmax(id_logits.squeeze().detach().cpu(), dim=0)
+            confidences.append(probs.numpy())
+
+        predicted_id = id_logits.argmax(dim=-1).item()
+        print("The Predicted ID is: %d" % predicted_id)
+
+        confidences = np.array(confidences)
+        plt.figure()
+        for i in range(confidences.shape[1]):
+            plt.plot(confidences[:, i], label = "Agent %d" % i)
+            plt.ylim([0,1])
+            plt.legend()
+            plt.grid()
+            plt.xlabel("Rounds Played")
+            plt.ylabel("Predicted Probability of Each Agent")
+            plt.title("Network Confidence")
+            plt.savefig(save_path, dpi = 200)
+        plt.show()
