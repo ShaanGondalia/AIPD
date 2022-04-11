@@ -1,10 +1,9 @@
 from tqdm import tqdm 
 import numpy as np
 from agent import agents as ag
-from .hyper_parameters import *
 
 
-def play_IPD(player_1, player_2, rounds, is_training):
+def play_IPD(player_1, player_2, rounds, is_training, reward):
     player_1_actions = []
     player_2_actions = []
     total_reward_1 = 0
@@ -41,17 +40,17 @@ def get_reward(action_1, action_2):
     reward_2 = 0
 
     if action_1 == 0 and action_2 == 0: # Both players cooperate
-          reward_1 = REWARD[0][0]
-          reward_2 = REWARD[0][1]
+          reward_1 = reward[0][0]
+          reward_2 = reward[0][1]
     elif action_1 == 0 and action_2 == 1: # Only player 2 defects
-          reward_1 = REWARD[1][0]
-          reward_2 = REWARD[1][1]
+          reward_1 = reward[1][0]
+          reward_2 = reward[1][1]
     elif action_1 == 1 and action_2 == 0: # Only player 1 defects
-          reward_1 = REWARD[2][0]
-          reward_2 = REWARD[2][1]
+          reward_1 = reward[2][0]
+          reward_2 = reward[2][1]
     elif action_1 == 1 and action_2 == 1: # Both players defect
-          reward_1 = REWARD[3][0]
-          reward_2 = REWARD[3][1]
+          reward_1 = reward[3][0]
+          reward_2 = reward[3][1]
 
     return reward_1, reward_2
 
@@ -65,14 +64,14 @@ def get_reward(action_1, action_2):
 # TODO: store number of times a state,action pair has been seen to improve learning, curiosity
 # TODO: use numba here to speed up training
 
-def train(player_1, player_2):
+def train(player_1, player_2, epochs, rounds, reward):
   max_total_reward_1 = 0
 
-  for i in tqdm(range(EPOCHS)):
-    total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, ROUNDS, True) 
+  for i in tqdm(range(epochs)):
+    total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, rounds, True, reward) 
     max_total_reward_1 = max(total_reward_1, max_total_reward_1)
 
-def test(player_1, player_2):
+def test(player_1, player_2, epochs, rounds, epsilon, memory, reward):
   # TESTING
   Q_wins = 0
   Q_ties = 0
@@ -80,10 +79,10 @@ def test(player_1, player_2):
   total_rewards_1 = []
   total_rewards_2 = []
   movesets = []
-  player_1.set_epsilon(EPSILON_TEST)
+  player_1.set_epsilon(epsilon)
 
-  for i in tqdm(range(TEST_EPOCHS)):
-    total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, ROUNDS, False)    
+  for i in tqdm(range(epochs)):
+    total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, rounds, False)    
 
     if total_reward_1 > total_reward_2:
       Q_wins += 1
@@ -99,7 +98,7 @@ def test(player_1, player_2):
   Q_table = player_1.get_table()
   Q_table_actual_size = len(Q_table)
   Q_table_max_size = 0
-  for i in range(min(ROUNDS, MEMORY + 1)):
+  for i in range(min(rounds, memory + 1)):
     Q_table_max_size += 4**i
 
   print('\n')
@@ -107,7 +106,7 @@ def test(player_1, player_2):
   print('Player 1 Ties:', Q_ties)
   print('Player 1 Losses:', Q_loses)
   print('\n')
-  print('Mutual Coop Reward:', ROUNDS * REWARD[0][0])
+  print('Mutual Coop Reward:', rounds * reward[0][0])
   print('Player 1 Max Reward Seen:', max_total_reward_1) # In training
   print('Player 1 Avg Reward:', np.mean(total_rewards_1))
   print('Player 2 Avg Reward:', np.mean(total_rewards_2))

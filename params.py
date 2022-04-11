@@ -7,8 +7,7 @@ LSTM_PRETRAIN_SAMPLE_SIZE = 1024
 
 QTABLE_TRAIN_EPOCHS = 10000
 QTABLE_TEST_EPOCHS = 1000
-QTABLE_ROUNDS = 10
-QTABLE_QTABLE_LR = 1            # Higher value means more aggressive learning [0, 1]
+QTABLE_LR = 1            # Higher value means more aggressive learning [0, 1]
 QTABLE_DISCOUNT = 1      # Higher value means trust more in Q-Table [0, 1]
 QTABLE_EPSILON_TRAIN = 1 # Higher value means more random [0, 1]
 QTABLE_EPSILON_TEST = 0  # Higher value means more random [0, 1]

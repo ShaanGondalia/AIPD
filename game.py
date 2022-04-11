@@ -3,7 +3,6 @@ from tqdm import tqdm
 from params import *
 from lstm.lstm import LSTM
 import matplotlib.pyplot as plt
-import qtable.hyper_parameters as qhp
 import qtable.qagent as qag
 import qtable.qlearn as ql
 import numpy as np
@@ -26,9 +25,9 @@ class Game():
         self.lstm = LSTM(IN, LSTM_HIDDEN, OUT, len(self.agents.agents), LSTM_LAYERS, LSTM_LR, DEVICE)
         self.q_agents = {}
         for agent in self.agents.agents:
-            self.q_agents[agent.id()] = qag.QAgent(lr = qhp.LR, 
-                discount = qhp.DISCOUNT, epsilon=qhp.EPSILON_TRAIN, 
-                decay_rate=qhp.DECAY_RATE, min_e=qhp.MIN_EPSILON, memory=qhp.MEMORY)
+            self.q_agents[agent.id()] = qag.QAgent(lr = QTABLE_LR, 
+                discount=QTABLE_DISCOUNT, epsilon=QTABLE_EPSILON_TRAIN, 
+                decay_rate=QTABLE_DECAY_RATE, min_e=QTABLE_MIN_EPSILON, memory=QTABLE_MEMORY)
 
     def train_all(self):
         self.train_lstm()
@@ -42,7 +41,7 @@ class Game():
     def train_qtables(self):
         print("Training QTables")
         for agent in self.agents.agents:
-            ql.train(self.q_agents[agent.id()], agent)
+            ql.train(self.q_agents[agent.id()], agent, QTABLE_TRAIN_EPOCHS, TEST_ROUNDS, REWARD)
 
     def save_all(self, fname):
         self.save_lstm(fname)
@@ -154,7 +153,7 @@ class Game():
             nn_action = np.random.randint(2)
             agent_action = int(agent.play())
             input = self.lstm.rebuild_input(nn_action, agent_action, input[0])
-            opponent.update(nn_action)
+            agent.update(nn_action)
 
             probs = torch.softmax(id_logits.squeeze().detach().cpu(), dim=0)
             confidences.append(probs.numpy())
