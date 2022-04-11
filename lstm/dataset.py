@@ -2,12 +2,12 @@ import numpy as np
 import itertools
 import random
 from torch.utils.data import Dataset, DataLoader
-from .hyper_parameters import *
+
 
 class PreTrainDataset(Dataset):
 
-  def __init__(self, agents):
-    self.generate_data(agents)
+  def __init__(self, agents, rounds, sample_size):
+    self.generate_data(agents, rounds, sample_size)
 
   def __getitem__(self, idx):
     item = self.data[idx]
@@ -21,9 +21,9 @@ class PreTrainDataset(Dataset):
         "output" : agent_id
     }
 
-  def generate_data(self, agents):
-      d = np.array([seq for seq in itertools.product([0,1], repeat=ROUNDS)])
-      movesets = random.sample(list(d), SAMPLE)
+  def generate_data(self, agents, rounds, sample_size):
+      d = np.array([seq for seq in itertools.product([0,1], repeat=rounds)])
+      movesets = random.sample(list(d), sample_size)
       self.data = []
 
       for agent in agents.agents:

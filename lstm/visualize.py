@@ -1,6 +1,5 @@
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from .hyper_parameters import *
 import numpy as np
 import torch
 
@@ -21,22 +20,23 @@ def visualize_model_accuracy(
     save_path,
     defect_first_ids = [],
     max_length = 20,
-    games = 100) :
+    games = 100,
+    device='cuda') :
     model.eval()
     accuracies = {}
     print("Beginning Evaluation")
     for length in range(1, max_length+1):
       errors = 0
-      for game in tqdm(range(GAMES)):
+      for game in tqdm(range(games)):
 
         agent = np.random.choice(agents)
         agent_id = agent.id()
         prev_agent_choice = 1 if agent_id in defect_first_ids else 0
         input = [0,0]
         input[1] = prev_agent_choice
-        input = torch.Tensor(input).to(DEVICE).unsqueeze(0).unsqueeze(0)
+        input = torch.Tensor(input).to(device).unsqueeze(0).unsqueeze(0)
         id = [agent_id]
-        id = torch.Tensor(id).to(DEVICE)
+        id = torch.Tensor(id).to(device)
         id = id.to(torch.int64)
 
         for _ in range(length):
@@ -51,7 +51,7 @@ def visualize_model_accuracy(
           curr_input = [0, 0]
           curr_input[0] = nn_action
           curr_input[1] = agent_action
-          curr_input = torch.Tensor(curr_input).to(DEVICE).unsqueeze(0)
+          curr_input = torch.Tensor(curr_input).to(device).unsqueeze(0)
 
           prev_input = input[0]
           input = torch.cat([prev_input, curr_input]).unsqueeze(0)
@@ -62,7 +62,7 @@ def visualize_model_accuracy(
           errors += 1      
         agent.reset()
 
-      frac = (GAMES-errors)/GAMES
+      frac = (games-errors)/games
       print("Prediction Accuracy with Length %s: %.2f" %(length, frac))
       accuracies[length] = frac
 
@@ -83,7 +83,8 @@ def visualize_model_confidence(
     opponent,
     opponent_first_move,
     max_length,
-    save_path):
+    save_path,
+    device='cuda'):
   
   model.eval()
   confidences = []
@@ -91,7 +92,7 @@ def visualize_model_confidence(
 
   input = [0,0]
   input[1] = opponent_first_move
-  input = torch.Tensor(input).to(DEVICE).unsqueeze(0).unsqueeze(0)
+  input = torch.Tensor(input).to(device).unsqueeze(0).unsqueeze(0)
   for i in range(1, max_length+1):
     out = model(input)
     id_logits = out[:, -1, :]
@@ -104,7 +105,7 @@ def visualize_model_confidence(
     curr_input = [0, 0]
     curr_input[0] = nn_action
     curr_input[1] = agent_action
-    curr_input = torch.Tensor(curr_input).to(DEVICE).unsqueeze(0)
+    curr_input = torch.Tensor(curr_input).to(device).unsqueeze(0)
 
     prev_input = input[0]
     input = torch.cat([prev_input, curr_input]).unsqueeze(0)

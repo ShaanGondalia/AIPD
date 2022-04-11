@@ -1,11 +1,11 @@
 from agent import agents as ag
+from tqdm import tqdm
+from params import *
 from lstm.lstm import LSTM
-from lstm.hyper_parameters import *
 from lstm.visualize import visualize_model_accuracy, visualize_model_confidence
 import qtable.hyper_parameters as qhp
 import qtable.qagent as qag
 import qtable.qlearn as ql
-from tqdm import tqdm
 import numpy as np
 import torch.nn.functional as nnf
 import pickle
@@ -14,7 +14,7 @@ import pickle
 class Game():
     def __init__(self, agents_config):
         self.agents = ag.Agents(agents_config) # The agents to play against in the tournament
-        self.lstm = LSTM(IN, HIDDEN, OUT, len(self.agents.agents), LAYERS)
+        self.lstm = LSTM(IN, LSTM_HIDDEN, OUT, len(self.agents.agents), LSTM_LAYERS, LSTM_LR, DEVICE)
         self.q_agents = {}
         for agent in self.agents.agents:
             self.q_agents[agent.id()] = qag.QAgent(lr = qhp.LR, 
@@ -27,7 +27,8 @@ class Game():
 
     def train_lstm(self):
         print("Training LSTM")
-        self.lstm.pretrain(self.agents)
+        self.lstm.pretrain(self.agents, LSTM_PRETRAIN_BATCH_SIZE, 
+            LSTM_PRETRAIN_EPOCHS, TEST_ROUNDS, LSTM_PRETRAIN_SAMPLE_SIZE)
 
     def train_qtables(self):
         print("Training QTables")
@@ -64,22 +65,22 @@ class Game():
         print("Playing Game")
         self.lstm.eval()
         accuracies = {}
-        for epoch in range(EPOCHS):
+        for epoch in range(TEST_EPOCHS):
             print("EPOCH %d" % epoch)
             errors = 0
             total_reward = 0
-            for i in tqdm(range(GAMES)):
+            for i in tqdm(range(TEST_GAMES)):
                 agent = self.agents.get_random_agent_in_tournament()
                 reward, error = self._play_one_game(agent)
                 errors += error
                 total_reward += reward
                 agent.reset()
 
-            frac = (GAMES-errors)/GAMES
+            frac = (TEST_GAMES-errors)/TEST_GAMES
             print("Prediction Accuracy: %.2f" % frac)
             print(f"Total Reward: {total_reward}")
-            print(f"Average Reward per Game: {total_reward/GAMES}")
-            print(f"Average Reward per Round: {total_reward/(GAMES*ROUNDS)}")
+            print(f"Average Reward per Game: {total_reward/TEST_GAMES}")
+            print(f"Average Reward per Round: {total_reward/(TEST_GAMES*TEST_ROUNDS)}")
 
     def _play_one_game(self, agent):
         """Plays a single game against an agent, comprised of ROUNDS iterations"""
@@ -90,7 +91,7 @@ class Game():
         input = self.lstm.build_input_vector(prev_agent_choice)
         id = self.lstm.build_id_vector(agent)
         # Play ROUNDS iterations of the prisoners dilemma against the same agent
-        for _ in range(ROUNDS):
+        for _ in range(TEST_ROUNDS):
             prev_moves = np.array([prev_nn_moves, prev_agent_moves]).T
             pred_id, id_logits = self.lstm.predict_id(input, agent)
             probs = nnf.softmax(id_logits, dim=1).detach().cpu().numpy()
