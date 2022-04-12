@@ -1,43 +1,20 @@
 from .memory_n_agent import MemoryNAgent
 import numpy as np
-
-
-AGENT_DICT = {
-  "Cooperate": {
-    "id": 0,
-    "count": 2,
-    "n": 1,
-    "strategy": [0, 0, 0, 0]
-  },
-  "Defect": {
-    "id": 1,
-    "count": 1,
-    "n": 1,
-    "strategy": [1, 1, 1, 1]
-  },
-  "Copy": {
-    "id": 2,
-    "count": 3,
-    "n": 1,
-    "strategy": [0, 1, 0, 1]
-  },
-  "Generic": {
-    "id": 3,
-    "count": 1,
-    "n": 1,
-    "strategy": [1, 0, 0, 1]
-  },
-}
+import json
 
 
 class Agents():
-  def __init__(self):
+  def __init__(self, file):
+    data = json.load(file)
+    agent_list = data["agents"]
     self.agents = []
     self.tournament = []
-    for agent in AGENT_DICT:
-      self.agents.append(MemoryNAgent(AGENT_DICT[agent]['id'], AGENT_DICT[agent]['n'], AGENT_DICT[agent]['strategy']))
-      for i in range(AGENT_DICT[agent]['count']):
-        self.tournament.append(MemoryNAgent(AGENT_DICT[agent]['id'], AGENT_DICT[agent]['n'], AGENT_DICT[agent]['strategy']))
+    print("Tournament configuration:")
+    for agent in agent_list:
+      print(f"\t{agent['name']}: {agent['count']}")
+      self.agents.append(MemoryNAgent(agent['name'], agent['id'], agent['n'], agent['strategy']))
+      for i in range(agent['count']):
+        self.tournament.append(MemoryNAgent(agent['name'], agent['id'], agent['n'], agent['strategy']))
 
   def get_random_agent(self):
     agent = np.random.choice(self.agents)
