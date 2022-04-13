@@ -36,6 +36,7 @@
       "name": "Default QAgent",
       "id": 4,
       "type": "ai",
+      "dimensions": 4, // This should be the same as the number of memory agents
       "count": 1,
       "file": "default"
     }

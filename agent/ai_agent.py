@@ -1,11 +1,14 @@
 from .base_agent import BaseAgent
-from ..params import *
+import sys
+sys.path.append("..") # TODO: Remove this
+from params import *
+from lstm.lstm import LSTM
 
 class AIAgent(BaseAgent):
 
-	def __init__(self, name, id, load_fname):
+	def __init__(self, name, id, id_dim, load_fname):
 		super().__init__(id)
-		self.lstm = LSTM(IN, LSTM_HIDDEN, OUT, len(self.agents.agents), LSTM_LAYERS, LSTM_LR, DEVICE)
+		self.lstm = LSTM(IN, LSTM_HIDDEN, OUT, id_dim, LSTM_LAYERS, LSTM_LR, DEVICE)
 		self.q_tables = {}
 		self.load(load_fname)
 		self.name = name
