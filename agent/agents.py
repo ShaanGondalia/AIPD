@@ -18,7 +18,7 @@ class Agents():
         for i in range(agent['count']):
           self.tournament.append(MemoryNAgent(agent['name'], agent['id'], agent['n'], agent['strategy']))
       elif agent['type'] == 'ai':
-        self.agents.append(AIAgent(agent['name'], agent['id'], agent['dimensions'], agent['file']))
+        # self.agents.append(AIAgent(agent['name'], agent['id'], agent['dimensions'], agent['file']))
         for i in range(agent['count']):
           self.tournament.append(AIAgent(agent['name'], agent['id'], agent['dimensions'], agent['file']))
 

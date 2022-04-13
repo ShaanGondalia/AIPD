@@ -4,14 +4,30 @@ This repository explores the behavioral evolution of NN agents in the prisoner's
 
 ## Usage
 
-To train models on the agents defined in Agents.py, run:
+To train all models on an agent configuration, run:
 
-```python main.py -t true -s <save_filename>```
+```python main.py -a <path_to_agent_config> -t -s <save_filename>```
 
-To test the trained models in the tournament defined in Agents.py, run:
+To train only the q_table/lstm run:
 
-```python main.py -l <load_filename>```
+```python main.py -a <path_to_agent_config> -t -s <save_filename> -m qtable```
+```python main.py -a <path_to_agent_config> -t -s <save_filename> -m lstm```
+
+To evaluate the performance of the trained models, run:
+
+```python main.py -a <path_to_agent_config> -l <load_filename>```
+
+To run and visualize a tournament, run:
+
+```python main.py -a <path_to_agent_config> -r -n <save_filename> -v```
+
+To save visualizations for any command (if possible), add `-v` to the command.
+
 
 ## Agents
 
 To create new agent types, new strategies, and new tournament configurations check the [Agent Documentation](agent/README.md). Note that whenever a new agent type or strategy is added to the AGENT_DICT, the model must be retrained (otherwise results are unknown). Also note that all agent types must have a different ID.
+
+## Hyper-Parameters
+
+All Model hyper-parameters are kept in the params.py file.

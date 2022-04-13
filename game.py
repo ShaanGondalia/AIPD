@@ -85,7 +85,7 @@ class Game():
             errors = 0
             total_reward = 0
             for i in tqdm(range(TEST_GAMES)):
-                agent = self.agents.get_random_agent_in_tournament()
+                agent = self.agents.get_random_agent()
                 reward, error = self._play_one_game(agent, TEST_ROUNDS)
                 errors += error
                 total_reward += reward
@@ -238,7 +238,7 @@ class Game():
 
     def tournament(self, visual=False, name='unnamed'):
         generations = []
-        for generation in range(self.generations):
+        for generation in tqdm(range(self.generations)):
             tournament_agents = self.agents.tournament
             
             rewards = [0] * len(tournament_agents)
