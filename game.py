@@ -35,19 +35,20 @@ class Game():
         self.interactions = INTERACTIONS
         self.reproduction_rate = REPRODUCTION_RATE
 
-    def train_all(self):
+    def train_all(self, visualize=False):
         self.train_lstm()
-        self.train_qtables()
+        self.train_qtables(visualize)
 
     def train_lstm(self):
         print("Training LSTM")
         self.lstm.pretrain(self.agents, LSTM_PRETRAIN_BATCH_SIZE, 
             LSTM_PRETRAIN_EPOCHS, TEST_ROUNDS, LSTM_PRETRAIN_SAMPLE_SIZE)
 
-    def train_qtables(self):
+    def train_qtables(self, visualize=False):
         print("Training QTables")
         for agent in self.agents.agents:
-            ql.train(self.q_agents[agent.id()], agent, QTABLE_TRAIN_EPOCHS, TEST_ROUNDS, REWARD)
+            ql.train(self.q_agents[agent.id()], agent, QTABLE_TRAIN_EPOCHS, 
+                TEST_ROUNDS, REWARD, visual=visualize, name=agent.name)
 
     def save_all(self, fname):
         self.save_lstm(fname)
