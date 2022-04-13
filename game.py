@@ -8,6 +8,9 @@ import qtable.qlearn as ql
 import numpy as np
 import torch.nn.functional as nnf
 import pickle
+import random
+import math
+import imageio as iio
 
 CB91_Blue = '#2CBDFE'
 CB91_Green = '#47DBCD'
@@ -21,13 +24,16 @@ plt.rcParams['axes.prop_cycle'] = plt.cycler(color=color_list)
 
 class Game():
     def __init__(self, agents_config):
-        self.agents = ag.Agents(agents_config) # The agents to play against in the tournament
+        self.agents = ag.Agents(agents_config) # The agents to play against in the 
         self.lstm = LSTM(IN, LSTM_HIDDEN, OUT, len(self.agents.agents), LSTM_LAYERS, LSTM_LR, DEVICE)
         self.q_agents = {}
         for agent in self.agents.agents:
             self.q_agents[agent.id()] = qag.QAgent(lr = QTABLE_LR, 
                 discount=QTABLE_DISCOUNT, epsilon=QTABLE_EPSILON_TRAIN, 
                 decay_rate=QTABLE_DECAY_RATE, min_e=QTABLE_MIN_EPSILON, memory=QTABLE_MEMORY)
+        self.generations = GENERATIONS
+        self.interactions = INTERACTIONS
+        self.reproduction_rate = REPRODUCTION_RATE
 
     def train_all(self):
         self.train_lstm()
@@ -173,3 +179,84 @@ class Game():
             plt.title("Network Confidence")
             plt.savefig(save_path, dpi = 200)
         plt.show()
+        
+    def play_IPD(self, agent0, agent1, reward):
+        prev_agent0_moves = []
+        prev_agent1_moves = []
+        rewards = [0, 0]
+        
+        # Play ROUNDS iterations of the prisoners dilemma against the same agent
+        for _ in range(ROUNDS):
+            prev_moves = np.array([prev_agent0_moves, prev_agent1_moves]).T
+            agent0_action = int(agent0.play())
+            agent1_action = int(agent1.play())
+            agent0.update(agent1_action)
+            agent1.update(agent0_action)
+            prev_agent0_moves.append(agent0_action)
+            prev_agent1_moves.append(agent1_action)
+            # TODO: use words "move" or "action" consistently
+            rewards[0] += ql.get_reward(agent0_action, agent1_action, reward)[0]
+            rewards[1] += ql.get_reward(agent0_action, agent1_action, reward)[1]
+
+        return rewards
+    
+    def natural_selection(self, agents_pre_selection):
+        pop_size = len(agents_pre_selection)
+        replacements = min(math.floor(self.reproduction_rate * pop_size), pop_size // 2)
+        for i in range(replacements):
+            agents_pre_selection[i] = agents_pre_selection[-i]
+        return agents_pre_selection
+    
+    def plot_generation(self, tournament_agents, filename):
+        side = int(np.ceil(np.sqrt(len(tournament_agents))))
+        img = np.full((side*side, 1), 17)
+        i = 0
+        
+        for tournament_agent in tournament_agents:
+          img[i] = tournament_agent.id()
+          i += 1
+          
+        img = img.reshape((side, side)).astype(np.uint8)
+        plt.figure(figsize=(5,5))
+        plt.imshow(img, cmap='gist_ncar', vmin=0, vmax=16)
+        plt.axis('off')
+        plt.savefig(filename)
+        plt.close()
+        
+    def animate_tournament(self, generations, name):
+        frames = []
+        i = 0
+        
+        for generation in generations:
+          filename = 'visuals/images/{name}_generation_{idx}.png'.format(name=name, idx=i)
+          self.plot_generation(generation, filename)
+          frames.append(iio.imread(filename))
+          i += 1
+          
+        iio.mimsave('visuals/animations/{name}_tournament_animation.gif'.format(name=name), frames, fps=6)
+
+    def tournament(self, visual=False, name='unnamed'):
+        generations = []
+        for generation in range(self.generations):
+            tournament_agents = self.agents.tournament
+            
+            rewards = [0] * len(tournament_agents)
+            agents_and_rewards = [list(a_r) for a_r in zip(tournament_agents, rewards)]
+
+            for interaction in range(self.interactions):
+                random.shuffle(agents_and_rewards)
+                for i in range(0, len(agents_and_rewards) - 1, 2):
+                    agent0 = agents_and_rewards[i][0]
+                    agent1 = agents_and_rewards[i+1][0]
+                    reward0, reward1 = self.play_IPD(agent0, agent1, REWARD)
+                    agents_and_rewards[i][1] += reward0
+                    agents_and_rewards[i+1][1] += reward1
+                    
+            agents_and_rewards.sort(key=lambda x: x[1])
+            agents_pre_selection = [list(a_r) for a_r in zip(*agents_and_rewards)][0]
+            
+            agents_post_selection = self.natural_selection(agents_pre_selection)
+            generations.append(agents_post_selection)
+            self.agents.tournament = agents_post_selection
+        if visual:
+            self.animate_tournament(generations, name)
