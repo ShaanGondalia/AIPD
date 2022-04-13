@@ -24,7 +24,7 @@ plt.rcParams['axes.prop_cycle'] = plt.cycler(color=color_list)
 
 class Game():
     def __init__(self, agents_config):
-        self.agents = ag.Agents(agents_config) # The agents to play against in the 
+        self.agents = ag.Agents(agents_config) # The agents to play against in the tournament
         self.lstm = LSTM(IN, LSTM_HIDDEN, OUT, len(self.agents.agents), LSTM_LAYERS, LSTM_LR, DEVICE)
         self.q_agents = {}
         for agent in self.agents.agents:
