@@ -9,24 +9,17 @@ MODEL_CHOICES = ['qtable', 'lstm', 'all']
 def main(args):
 	game = Game(args['agents'])
 	if args['train']:
-		print(args.visualize)
-		visualize=False
-		if args['visualize']:
-			visualize=True
 		if args['models'] == 'qtable':
-			game.train_qtables(visualize)
+			game.train_qtables(args['visualize'])
 			game.save_qtables(args['save'])    
 		elif args['models'] == 'lstm':
 			game.train_lstm()
 			game.save_lstm(args['save'])
 		else:
-			game.train_all(visualize)
+			game.train_all(args['visualize'])
 			game.save_all(args['save'])
 	elif args['tournament']:
-		if args['visualize']:
-			game.tournament(visual=True, name=args['name'])
-		else:
-			game.tournament(visual=False, name=args['name'])
+		game.tournament(visual=args['visualize'], name=args['name'])
 	else:
 		game.load(args['load'])
 		if args['visualize']:
