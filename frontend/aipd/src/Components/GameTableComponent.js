@@ -25,7 +25,6 @@ const generateRows = (userHistory, opponentHistory) => {
         return null
     }
     const cumulativeRewards = computeCumulativeRewards(userHistory, opponentHistory)
-    console.log(cumulativeRewards)
     const rows = userHistory.map((x, i) => {
         return <Table.Row>
             <Table.Cell>{x}</Table.Cell>
