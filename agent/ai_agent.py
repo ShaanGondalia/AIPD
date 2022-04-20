@@ -1,11 +1,18 @@
 from .base_agent import BaseAgent
-from ..params import *
+import sys
+sys.path.append("..") # TODO: Remove this
+from params import *
+from lstm.lstm import LSTM
+import pickle
+import numpy as np
+import torch.nn.functional as nnf
+
 
 class AIAgent(BaseAgent):
 
-	def __init__(self, name, id, load_fname):
+	def __init__(self, name, id, id_dim, load_fname):
 		super().__init__(id)
-		self.lstm = LSTM(IN, LSTM_HIDDEN, OUT, len(self.agents.agents), LSTM_LAYERS, LSTM_LR, DEVICE)
+		self.lstm = LSTM(IN, LSTM_HIDDEN, OUT, id_dim, LSTM_LAYERS, LSTM_LR, DEVICE)
 		self.q_tables = {}
 		self.load(load_fname)
 		self.name = name
@@ -35,6 +42,5 @@ class AIAgent(BaseAgent):
 		prev_agent_choice = 0 # This should probably get replaced (assume cooperate first)
 		self.prev_agent_moves = []
 		self.prev_nn_moves = []
-		reward = 0
-		input = self.lstm.build_input_vector(prev_agent_choice)
+		self.input = self.lstm.build_input_vector(prev_agent_choice)
 		self.val=0

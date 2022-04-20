@@ -2,17 +2,15 @@
 
 
 ## Types of Agents
-Agents can be defined by extension of the BaseAgent, found in ```base_agent.py```. Strategies can be arbitrarily complex, as long as the correct methods of BaseAgent are overloaded. We provide a tool for defining a generic agent that remembers N moves, called MemoryNAgent, found in ```memory_n_agent.py```.
+Agents can be defined by extension of the BaseAgent, found in ```base_agent.py```. Strategies can be arbitrarily complex, as long as the correct methods of BaseAgent are overloaded. We provide a tool for defining a generic agent that remembers N moves, called MemoryNAgent, found in ```memory_n_agent.py```. The AIAgent packages the lstm and qtable models into a single agent that can be played against.
 
 ## Defining Agents in the Game
 
-`agents.py` serves two purposes. First, it lists the strategies of each **type** of agent that exists in this game. Secondly, it provides the **count** of each type of agent found in the tournament. For instance, the user may create 4 different types of agents, but can set up a tournament that contains 3 of each type of agent, totaling to 12 agents in the tournament. 
+`agents.py` contains a list of agents that are loaded in from a JSON configuration file. This configuration file lists the strategies of each **type** of agent that exists in this game, as well as the **count** of each type of agent found in the tournament. For instance, the user may create 4 different types of agents, but can set up a tournament that contains 3 of each type of agent, totaling to 12 agents in the tournament. 
 
 This distinction between the types of agents and the tournament of agents is important, as the LSTM and Q-Tables are only trained to recognize types of agents, not individual instances of each type. This way, we can set up very large tournaments without increasing the training time of the models too much.
 
-To change the strategies, available types, and counts of agents the user must edit ```AGENT_DICT``` inside of `agents.py`. In the future, this dictionary may get switched to a configuration file instead of python code.
-
-Note that whenever a new agent type or strategy is added to the AGENT_DICT, the model **must** be retrained (otherwise results are unknown). Also note that all agent types **must** have a different ID.
+Note that whenever a new agent type or strategy is added to the configuration file, the model **must** be retrained (otherwise results are unknown). Also note that all agent types **must** have a different ID. 
 
 ## Defining Strategy for MemoryNAgent
 

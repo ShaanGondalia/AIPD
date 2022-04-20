@@ -1,4 +1,5 @@
 from .memory_n_agent import MemoryNAgent
+from .ai_agent import AIAgent
 import numpy as np
 import json
 
@@ -12,9 +13,14 @@ class Agents():
     print("Tournament configuration:")
     for agent in agent_list:
       print(f"\t{agent['name']}: {agent['count']}")
-      self.agents.append(MemoryNAgent(agent['name'], agent['id'], agent['n'], agent['strategy']))
-      for i in range(agent['count']):
-        self.tournament.append(MemoryNAgent(agent['name'], agent['id'], agent['n'], agent['strategy']))
+      if agent['type'] == 'memory':
+        self.agents.append(MemoryNAgent(agent['name'], agent['id'], agent['n'], agent['strategy']))
+        for i in range(agent['count']):
+          self.tournament.append(MemoryNAgent(agent['name'], agent['id'], agent['n'], agent['strategy']))
+      elif agent['type'] == 'ai':
+        # self.agents.append(AIAgent(agent['name'], agent['id'], agent['dimensions'], agent['file']))
+        for i in range(agent['count']):
+          self.tournament.append(AIAgent(agent['name'], agent['id'], agent['dimensions'], agent['file']))
 
   def get_random_agent(self):
     agent = np.random.choice(self.agents)

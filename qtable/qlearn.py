@@ -83,13 +83,13 @@ def animate_qtable(player, qtables, name):
   i = 0
 
   for qtable in qtables:
-    filename = 'visuals/images/{name}_qtable_{idx}.png'.format(name=name, idx=i)
+    filename = 'qtable/visuals/images/{name}_qtable_{idx}.png'.format(name=name, idx=i)
     qtable_snapshot.update(qtable)
     plot_qtable(qtable_snapshot, filename)
     frames.append(iio.imread(filename))
     i += 1
 
-  iio.mimsave('visuals/animations/{name}_qtable_animation.gif'.format(name=name), frames, fps=12)
+  iio.mimsave('qtable/visuals/animations/{name}_qtable_animation.gif'.format(name=name), frames, fps=12)
 
 # TRAINING
 # TODO: initial state of (0,0) may bias towards whatever the first selected move is in that state (FIXED: by adding is_curious parameter)
@@ -101,7 +101,7 @@ def animate_qtable(player, qtables, name):
 # TODO: store number of times a state,action pair has been seen to improve learning, curiosity
 # TODO: use numba here to speed up training
 
-def train(player_1, player_2, epochs, rounds, reward, verbose=False, visual=False, name='unnamed', granularity=100, convergence=2000):
+def train(player_1, player_2, epochs, rounds, reward, verbose=False, visual=False, name='unnamed', granularity=100, early_convergence=False, convergence_epochs=2000):
   max_total_reward_1 = 0
   qtables = []
   qtable_prev = dict()
@@ -111,20 +111,22 @@ def train(player_1, player_2, epochs, rounds, reward, verbose=False, visual=Fals
   for i in tqdm(range(epochs)):
     total_reward_1, total_reward_2, moveset = play_IPD(player_1, player_2, rounds, True, reward) 
     max_total_reward_1 = max(total_reward_1, max_total_reward_1)
-    qtable_curr = copy.deepcopy(player_1.get_table())
     
     if (i % granularity == 0):
+      qtable_curr = copy.deepcopy(player_1.get_table())
       qtables.append(qtable_curr)
-      
-    if (qtable_curr == qtable_prev):
-        consecutive_repeats += 1
-        if consecutive_repeats == convergence:
-            qtables.append(qtable_curr)
-            break
-    else:
-        consecutive_repeats = 0
-          
-    qtable_prev = copy.deepcopy(qtable_curr)
+    if early_convergence:
+        qtable_curr = copy.deepcopy(player_1.get_table())
+        if (qtable_curr == qtable_prev):
+            consecutive_repeats += 1
+            if consecutive_repeats == convergence_epochs:
+                if visual:
+                    qtables.append(qtable_curr)
+                break
+        else:
+            consecutive_repeats = 0
+
+        qtable_prev = copy.deepcopy(qtable_curr)
       
   if verbose:
     print('Player 1 Max Training Reward Seen:', max_total_reward_1)
@@ -191,3 +193,4 @@ def test(player_1, player_2, epochs, rounds, epsilon, memory, reward, verbose=Fa
       i += 1
       if i > 3:
           break
+
