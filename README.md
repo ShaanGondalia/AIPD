@@ -11,6 +11,7 @@ To train all models on an agent configuration, run:
 To train only the q_table/lstm run:
 
 ```python main.py -a <path_to_agent_config> -t -s <save_filename> -m qtable```
+
 ```python main.py -a <path_to_agent_config> -t -s <save_filename> -m lstm```
 
 To evaluate the performance of the trained models, run:
