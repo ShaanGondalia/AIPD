@@ -4,7 +4,7 @@
       "name": "Cooperate",
       "id": 0,
       "type": "memory",
-      "count": 2,
+      "count": 3,
       "n": 1,
       "strategy": [0, 0, 0, 0]
     },
@@ -12,7 +12,7 @@
       "name": "Defect",
       "id": 1,
       "type": "memory",
-      "count": 1,
+      "count": 3,
       "n": 1,
       "strategy": [1, 1, 1, 1]
     },
@@ -25,19 +25,19 @@
       "strategy": [0, 1, 0, 1]
     },
     {
-      "name": "Generic",
+      "name": "Grudge",
       "id": 3,
       "type": "memory",
-      "count": 1,
+      "count": 3,
       "n": 1,
-      "strategy": [1, 0, 0, 1]
+      "strategy": [0, 1, 1, 1]
     },
     {
       "name": "Default QAgent",
       "id": 4,
       "type": "ai",
       "dimensions": 4,
-      "count": 1,
+      "count": 4,
       "file": "default"
     }
   ]
