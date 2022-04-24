@@ -210,9 +210,9 @@ class Game():
             agents_pre_selection[i] = agents_pre_selection[-i]
         return agents_pre_selection
     
-    def plot_generation(self, tournament_agents, filename):
+    def plot_generation(self, tournament_agents, unique_agents, filename):
         side = int(np.ceil(np.sqrt(len(tournament_agents))))
-        img = np.full((side*side, 1), 17)
+        img = np.full((side*side, 1), unique_agents + 1)
         i = 0
         
         for tournament_agent in tournament_agents:
@@ -221,7 +221,8 @@ class Game():
           
         img = img.reshape((side, side)).astype(np.uint8)
         plt.figure(figsize=(5,5))
-        plt.imshow(img, cmap='gist_ncar', vmin=0, vmax=16)
+        plt.imshow(img, cmap='gist_ncar', vmin=0, vmax=unique_agents)
+        plt.colorbar()
         plt.axis('off')
         plt.savefig(filename)
         plt.close()
@@ -230,14 +231,18 @@ class Game():
         frames = []
         i = 0
         
+        agent_ids = []
+        for agent in generations[0]:
+          agent_ids.append(agent.id())
+        unique_agents = len(np.unique(agent_ids))
+        
         for generation in generations:
           filename = 'visuals/images/{name}_generation_{idx}.png'.format(name=name, idx=i)
-          self.plot_generation(generation, filename)
+          self.plot_generation(generation, unique_agents, filename)
           frames.append(iio.imread(filename))
           i += 1
           
         iio.mimsave('visuals/animations/{name}_tournament_animation.gif'.format(name=name), frames, fps=6)
-
 
     def graph_tournament(self, generations, name):
         agent_pops = dict()
@@ -260,6 +265,7 @@ class Game():
         plt.legend(loc='upper left')
         filename = 'visuals/graphs/{name}_tournament_evolution.png'.format(name=name)
         plt.savefig(filename)
+        plt.close()
 
     def tournament(self, visual=False, name='unnamed'):
         generations = []
