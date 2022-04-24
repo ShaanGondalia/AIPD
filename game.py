@@ -238,8 +238,32 @@ class Game():
           
         iio.mimsave('visuals/animations/{name}_tournament_animation.gif'.format(name=name), frames, fps=6)
 
+
+    def graph_tournament(self, generations, name):
+        agent_pops = dict()
+        for agent in generations[0]:
+            agent_pops[agent.name] = []
+
+        for generation in generations:
+            for val in agent_pops.values():
+                val.append(0)
+            for agent in generation:
+                agent_pops[agent.name][-1] += 1
+
+        plt.figure(dpi=200)
+        for k, v in agent_pops.items():
+            plt.plot(np.arange(len(generations)), v, label=k)
+
+        plt.title('Tournament Evolution')
+        plt.xlabel('Generation')
+        plt.ylabel('Population Size')
+        plt.legend(loc='upper left')
+        filename = 'visuals/graphs/{name}_tournament_evolution.png'.format(name=name)
+        plt.savefig(filename)
+
     def tournament(self, visual=False, name='unnamed'):
         generations = []
+        generations.append(self.agents.tournament)
         for generation in tqdm(range(self.generations)):
             tournament_agents = self.agents.tournament
             
@@ -263,3 +287,4 @@ class Game():
             self.agents.tournament = agents_post_selection
         if visual:
             self.animate_tournament(generations, name)
+            self.graph_tournament(generations, name)
