@@ -7,6 +7,7 @@ import qtable.qagent as qag
 import qtable.qlearn as ql
 import numpy as np
 import torch.nn.functional as nnf
+import torch
 import pickle
 import random
 import math
@@ -70,11 +71,11 @@ class Game():
             self.q_agents = pickle.load(handle)
 
     def visualize_lstm(self, fname):
-        accuracy_file = f'lstm/visuals/accuracy/{fname}.png'
-        self.visualize_lstm_accuracy(accuracy_file)
         for agent in self.agents.agents:
             confidence_file = f'lstm/visuals/confidence/{fname}_{agent.name}.png'
             self.visualize_lstm_confidence(agent, confidence_file)
+        accuracy_file = f'lstm/visuals/accuracy/{fname}.png'
+        self.visualize_lstm_accuracy(accuracy_file)
 
     def play(self):
         print("Playing Game")
@@ -117,7 +118,7 @@ class Game():
             agent.update(nn_action)
             prev_agent_moves.append(agent_action)
             prev_nn_moves.append(nn_action)
-            reward += ql.get_reward(nn_action, agent_action)[0]
+            reward += ql.get_reward(nn_action, agent_action, REWARD)[0]
         # self.lstm.learn(id_logits, id)
 
         return reward, 0 if pred_id == agent.id() else 1
@@ -140,6 +141,7 @@ class Game():
 
         x = list(accuracies.keys())
         y = list(accuracies.values())
+        plt.figure()
         plt.plot(x, y, 'o-')
         plt.ylim([0,1])
         plt.xlim([0, max_length+1])
@@ -150,7 +152,7 @@ class Game():
         plt.savefig(save_path, dpi = 200)
         plt.show()
 
-    def visualize_lstm_confidence(self, agent, save_path, max_length=20):
+    def visualize_lstm_confidence(self, agent, save_path, max_length=50):
         self.lstm.eval()
         confidences = []
         print("Beginning Confidence Evaluation")
@@ -171,13 +173,13 @@ class Game():
         confidences = np.array(confidences)
         plt.figure()
         for i in range(confidences.shape[1]):
-            plt.plot(confidences[:, i], label = "Agent %d" % i)
+            plt.plot(confidences[:, i], label = self.agents.agents[i].name)
             plt.ylim([0,1])
             plt.legend()
             plt.grid()
             plt.xlabel("Rounds Played")
             plt.ylabel("Predicted Probability of Each Agent")
-            plt.title("Network Confidence")
+            plt.title(f"Network Confidence Against {agent.name} Agent")
             plt.savefig(save_path, dpi = 200)
         plt.show()
         
@@ -235,32 +237,9 @@ class Game():
           i += 1
           
         iio.mimsave('visuals/animations/{name}_tournament_animation.gif'.format(name=name), frames, fps=6)
-        
-    def graph_tournament(self, generations, name):
-        agent_pops = dict()
-        for agent in generations[0]:
-            agent_pops[agent.name] = []
-        
-        for generation in generations:
-            for val in agent_pops.values():
-                val.append(0)
-            for agent in generation:
-                agent_pops[agent.name][-1] += 1
-        
-        plt.figure(dpi=200)
-        for k, v in agent_pops.items():
-            plt.plot(np.arange(len(generations)), v, label=k)
-            
-        plt.title('Tournament Evolution')
-        plt.xlabel('Generation')
-        plt.ylabel('Population Size')
-        plt.legend(loc='upper left')
-        filename = 'visuals/graphs/{name}_tournament_evolution.png'.format(name=name)
-        plt.savefig(filename)
 
     def tournament(self, visual=False, name='unnamed'):
         generations = []
-        generations.append(self.agents.tournament)
         for generation in tqdm(range(self.generations)):
             tournament_agents = self.agents.tournament
             
@@ -284,4 +263,3 @@ class Game():
             self.agents.tournament = agents_post_selection
         if visual:
             self.animate_tournament(generations, name)
-            self.graph_tournament(generations, name)
