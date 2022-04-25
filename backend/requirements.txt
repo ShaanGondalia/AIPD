@@ -2,3 +2,5 @@ torch
 numpy
 flask
 flask_cors
+matplotlib
+Pillow
