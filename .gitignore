@@ -1,5 +1,18 @@
+# Visualizations
+*.png
+*.gif
+
+# NPM
+.cache
+venv
+node_modules
+.eslintcache
+
+# Mac
+.DS_Store
+
+# Python
+__pycache__
+.ipynb_checkpoints
 *.pyc
 *.pyo
-*.png
-.ipynb_checkpoints
-*.gif
